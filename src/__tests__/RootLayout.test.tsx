@@ -13,6 +13,7 @@ describe("RootLayout", () => {
     expect(screen.getByText("H³ Backoffice")).toBeInTheDocument()
     expect(screen.getByText("Dashboard")).toBeInTheDocument()
     expect(screen.getByText("Contratos")).toBeInTheDocument()
+    expect(screen.getByText("Ubicaciones")).toBeInTheDocument()
   })
 
   it("renders Contratos as a link to /contracts", () => {
@@ -24,5 +25,16 @@ describe("RootLayout", () => {
 
     const link = screen.getByRole("link", { name: /contratos/i })
     expect(link).toHaveAttribute("href", "/contracts")
+  })
+
+  it("renders Ubicaciones as a link to /locations", () => {
+    render(
+      <MemoryRouter initialEntries={["/"]}>
+        <RootLayout />
+      </MemoryRouter>,
+    )
+
+    const link = screen.getByRole("link", { name: /ubicaciones/i })
+    expect(link).toHaveAttribute("href", "/locations")
   })
 })
