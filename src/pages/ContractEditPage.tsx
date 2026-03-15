@@ -100,11 +100,19 @@ export default function ContractEditPage() {
     getContract(id)
       .then((contract) => {
         if (cancelled) return;
-        const { id: _id, created_at: _ca, updated_at: _ua, ...rest } = contract;
-        void _id;
-        void _ca;
-        void _ua;
-        setForm(rest);
+        setForm({
+          title: contract.title,
+          description: contract.description,
+          contractor_name: contract.contractor_name,
+          contractor_logo_url: contract.contractor_logo_url,
+          status: contract.status,
+          hauling_orders: contract.hauling_orders,
+          reward_aUEC: contract.reward_aUEC,
+          collateral_aUEC: contract.collateral_aUEC,
+          deadline_minutes: contract.deadline_minutes,
+          max_acceptances: contract.max_acceptances,
+          requirements: contract.requirements,
+        });
       })
       .catch(() => {
         if (!cancelled) setNotFound(true);
