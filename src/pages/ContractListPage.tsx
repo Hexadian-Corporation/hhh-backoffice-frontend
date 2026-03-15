@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { Plus, CheckCircle, AlertCircle, Play, XCircle, Clock } from "lucide-react";
+import { Plus, CheckCircle, AlertCircle, Play, XCircle, Clock, Trash2 } from "lucide-react";
 import type { Contract } from "@/types/contract";
-import { listContracts, updateContract } from "@/api/contracts";
+import { listContracts, updateContract, deleteContract } from "@/api/contracts";
 import { Button } from "@/components/ui/button";
 import ConfirmationDialog from "@/components/ui/ConfirmationDialog";
 
@@ -84,6 +84,7 @@ export default function ContractListPage() {
     contractId: string;
     action: StatusAction;
   } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Contract | null>(null);
 
   const [retryCount, setRetryCount] = useState(0);
 
@@ -125,6 +126,19 @@ export default function ContractListPage() {
         type: "error",
       });
     }
+    setTimeout(() => setToast(null), 3000);
+  }
+
+  async function handleDelete() {
+    if (!deleteTarget) return;
+    try {
+      await deleteContract(deleteTarget.id);
+      setContracts((prev) => prev.filter((c) => c.id !== deleteTarget.id));
+      setToast({ message: "Contract deleted successfully", type: "success" });
+    } catch {
+      setToast({ message: "Failed to delete contract", type: "error" });
+    }
+    setDeleteTarget(null);
     setTimeout(() => setToast(null), 3000);
   }
 
@@ -242,17 +256,30 @@ export default function ContractListPage() {
                 <h2 className="font-semibold text-sm leading-tight">
                   {contract.title}
                 </h2>
-                <span
-                  className="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium capitalize border"
-                  style={{
-                    color: STATUS_COLORS[contract.status],
-                    borderColor: STATUS_COLORS[contract.status],
-                    backgroundColor: `color-mix(in srgb, ${STATUS_COLORS[contract.status]} 10%, transparent)`,
-                  }}
-                  data-testid={`status-badge-${contract.status}`}
-                >
-                  {contract.status}
-                </span>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <span
+                    className="rounded-full px-2 py-0.5 text-xs font-medium capitalize border"
+                    style={{
+                      color: STATUS_COLORS[contract.status],
+                      borderColor: STATUS_COLORS[contract.status],
+                      backgroundColor: `color-mix(in srgb, ${STATUS_COLORS[contract.status]} 10%, transparent)`,
+                    }}
+                    data-testid={`status-badge-${contract.status}`}
+                  >
+                    {contract.status}
+                  </span>
+                  <button
+                    type="button"
+                    aria-label={`Delete ${contract.title}`}
+                    className="p-1 rounded hover:bg-[var(--color-danger)]/10 transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDeleteTarget(contract);
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4 text-[var(--color-danger)]" />
+                  </button>
+                </div>
               </div>
 
               {/* Faction */}
@@ -306,7 +333,7 @@ export default function ContractListPage() {
         </div>
       )}
 
-      {/* Confirmation dialog */}
+      {/* Confirmation dialog for status change */}
       <ConfirmationDialog
         open={pendingAction !== null}
         title="Confirm Status Change"
@@ -315,6 +342,21 @@ export default function ContractListPage() {
         confirmVariant={pendingAction?.action.variant ?? "default"}
         onConfirm={handleStatusChange}
         onCancel={() => setPendingAction(null)}
+      />
+
+      {/* Confirmation dialog for delete */}
+      <ConfirmationDialog
+        open={deleteTarget !== null}
+        title="Confirm Deletion"
+        message={
+          deleteTarget
+            ? `Are you sure you want to delete '${deleteTarget.title}'? This action cannot be undone.`
+            : ""
+        }
+        confirmLabel="Delete"
+        confirmVariant="destructive"
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteTarget(null)}
       />
     </div>
   );

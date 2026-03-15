@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { ArrowLeft, Save, CheckCircle } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle, Trash2, AlertCircle } from "lucide-react";
 import type { ContractCreate, HaulingOrder, Requirements } from "@/types/contract";
-import { getContract, updateContract } from "@/api/contracts";
+import { getContract, updateContract, deleteContract } from "@/api/contracts";
 import { Button } from "@/components/ui/button";
 import GeneralTab from "@/components/contract/GeneralTab";
 import HaulingOrdersTab from "@/components/contract/HaulingOrdersTab";
 import RequirementsTab from "@/components/contract/RequirementsTab";
+import ConfirmationDialog from "@/components/ui/ConfirmationDialog";
 import { cn } from "@/lib/utils";
 
 type TabKey = "general" | "hauling" | "requirements";
@@ -86,7 +87,8 @@ export default function ContractEditPage() {
   const [notFound, setNotFound] = useState(false);
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [toast, setToast] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -161,13 +163,24 @@ export default function ContractEditPage() {
     setSaving(true);
     try {
       await updateContract(id!, form);
-      setToast("Contract saved successfully");
+      setToast({ message: "Contract saved successfully", type: "success" });
       setTimeout(() => setToast(null), 3000);
     } catch {
-      setToast("Failed to save contract");
+      setToast({ message: "Failed to save contract", type: "error" });
       setTimeout(() => setToast(null), 3000);
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleDelete() {
+    try {
+      await deleteContract(id!);
+      navigate("/contracts");
+    } catch {
+      setDeleteDialogOpen(false);
+      setToast({ message: "Failed to delete contract", type: "error" });
+      setTimeout(() => setToast(null), 3000);
     }
   }
 
@@ -200,10 +213,18 @@ export default function ContractEditPage() {
       {toast && (
         <div
           role="status"
-          className="mb-4 flex items-center gap-2 rounded-md bg-[var(--color-success)]/10 px-4 py-2 text-sm text-[var(--color-success)] border border-[var(--color-success)]/20"
+          className={`mb-4 flex items-center gap-2 rounded-md px-4 py-2 text-sm border ${
+            toast.type === "success"
+              ? "bg-[var(--color-success)]/10 text-[var(--color-success)] border-[var(--color-success)]/20"
+              : "bg-[var(--color-danger)]/10 text-[var(--color-danger)] border-[var(--color-danger)]/20"
+          }`}
         >
-          <CheckCircle className="h-4 w-4" />
-          {toast}
+          {toast.type === "success" ? (
+            <CheckCircle className="h-4 w-4" />
+          ) : (
+            <AlertCircle className="h-4 w-4" />
+          )}
+          {toast.message}
         </div>
       )}
 
@@ -217,6 +238,14 @@ export default function ContractEditPage() {
           >
             <ArrowLeft className="h-4 w-4" />
             Back
+          </Button>
+          <Button
+            variant="outline"
+            className="border-[var(--color-danger)] text-[var(--color-danger)] hover:bg-[var(--color-danger)]/10"
+            onClick={() => setDeleteDialogOpen(true)}
+          >
+            <Trash2 className="h-4 w-4" />
+            Delete
           </Button>
           <Button onClick={handleSave} disabled={saving}>
             <Save className="h-4 w-4" />
@@ -264,6 +293,17 @@ export default function ContractEditPage() {
           />
         )}
       </div>
+
+      {/* Confirmation dialog for delete */}
+      <ConfirmationDialog
+        open={deleteDialogOpen}
+        title="Confirm Deletion"
+        message={`Are you sure you want to delete '${form.title}'? This action cannot be undone.`}
+        confirmLabel="Delete"
+        confirmVariant="destructive"
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteDialogOpen(false)}
+      />
     </div>
   );
 }

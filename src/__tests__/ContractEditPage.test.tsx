@@ -566,4 +566,111 @@ describe("ContractEditPage", () => {
     );
     expect(await screen.findByText("Contract List")).toBeInTheDocument();
   });
+
+  // -- Delete --
+  it("shows delete button in header", async () => {
+    renderPage();
+    await screen.findByText("Edit Contract");
+
+    expect(screen.getByText("Delete")).toBeInTheDocument();
+  });
+
+  it("shows confirmation dialog when clicking Delete", async () => {
+    renderPage();
+    await screen.findByText("Edit Contract");
+
+    await userEvent.click(screen.getByText("Delete"));
+
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Are you sure you want to delete 'Test Haul'? This action cannot be undone.",
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("closes delete dialog when clicking Cancel", async () => {
+    renderPage();
+    await screen.findByText("Edit Contract");
+
+    await userEvent.click(screen.getByText("Delete"));
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+
+    const dialog = screen.getByRole("dialog");
+    await userEvent.click(within(dialog).getByText("Cancel"));
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("deletes contract and navigates to list on confirm", async () => {
+    renderPage();
+    await screen.findByText("Edit Contract");
+
+    await userEvent.click(screen.getByText("Delete"));
+
+    const dialog = screen.getByRole("dialog");
+    await userEvent.click(within(dialog).getByText("Delete"));
+
+    expect(await screen.findByText("Contract List")).toBeInTheDocument();
+
+    // Verify DELETE call was made
+    expect(fetch).toHaveBeenCalledWith(
+      "http://localhost:8001/contracts/42",
+      expect.objectContaining({ method: "DELETE" }),
+    );
+  });
+
+  it("shows error toast when delete fails", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+
+    // First call returns the contract, then DELETE fails
+    (fetch as Mock).mockImplementation((url: string, init?: RequestInit) => {
+      if (init?.method === "DELETE") {
+        return Promise.resolve({
+          ok: false,
+          status: 500,
+          statusText: "Internal Server Error",
+        });
+      }
+      if (url.includes("/commodities/comm-1")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ id: "comm-1", name: "Laranite", code: "LARA" }),
+        });
+      }
+      if (url.includes("/locations/loc-1")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ id: "loc-1", name: "Port Olisar", location_type: "station" }),
+        });
+      }
+      if (url.includes("/locations/loc-2")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ id: "loc-2", name: "Area18", location_type: "city" }),
+        });
+      }
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve(mockContract),
+      });
+    });
+
+    renderPage();
+    await screen.findByText("Edit Contract");
+
+    await userEvent.click(screen.getByText("Delete"));
+
+    const dialog = screen.getByRole("dialog");
+    await userEvent.click(within(dialog).getByText("Delete"));
+
+    expect(
+      await screen.findByText("Failed to delete contract"),
+    ).toBeInTheDocument();
+
+    // Should still be on the edit page
+    expect(screen.getByText("Edit Contract")).toBeInTheDocument();
+
+    vi.useRealTimers();
+  });
 });
