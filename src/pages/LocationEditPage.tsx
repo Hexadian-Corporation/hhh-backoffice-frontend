@@ -83,7 +83,7 @@ export default function LocationEditPage() {
               if (!cancelled) setParentName(parent.name);
             })
             .catch(() => {
-              if (!cancelled) setParentName(location.parent_id ?? "");
+              if (!cancelled) setParentName(`(ID: ${location.parent_id})`);
             });
         }
       })
