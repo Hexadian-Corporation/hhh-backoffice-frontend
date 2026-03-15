@@ -21,7 +21,7 @@ npm run dev
 
 ## Run in Docker (full stack)
 
-From the monorepo root (`hhh-main`):
+From the monorepo root (`hexadian-hauling-helper`):
 
 ```bash
 uv run hhh up
