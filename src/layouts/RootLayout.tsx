@@ -1,10 +1,11 @@
 import { NavLink, Outlet } from "react-router"
-import { LayoutDashboard, FileText, MapPin } from "lucide-react"
+import { LayoutDashboard, FileText, MapPin, Package } from "lucide-react"
 
 const navItems = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
   { to: "/contracts", label: "Contratos", icon: FileText },
   { to: "/locations", label: "Ubicaciones", icon: MapPin },
+  { to: "/commodities", label: "Mercancías", icon: Package },
 ]
 
 export default function RootLayout() {
