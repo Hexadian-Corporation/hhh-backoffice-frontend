@@ -41,7 +41,7 @@ function portFromUrl(url: string): string {
 
 export default function HealthPanel({ services = DEFAULT_SERVICES }: HealthPanelProps) {
   const [results, setResults] = useState<ServiceHealth[]>(() =>
-    services.map((s) => ({ name: s.name, url: s.url, status: "checking" as const, latencyMs: null })),
+    services.map((s) => ({ name: s.name, url: s.url, status: "checking" as const, latencyMs: null, errorMessage: null })),
   );
   const intervalRef = useRef<ReturnType<typeof setInterval>>(null);
 
@@ -83,6 +83,9 @@ export default function HealthPanel({ services = DEFAULT_SERVICES }: HealthPanel
             <div className="flex items-center gap-4">
               {svc.latencyMs !== null && (
                 <span className="text-xs text-[var(--color-text-muted)]">{svc.latencyMs}ms</span>
+              )}
+              {svc.errorMessage && (
+                <span className="text-xs text-[var(--color-text-muted)]">{svc.errorMessage}</span>
               )}
               <span
                 className={`text-xs font-medium ${

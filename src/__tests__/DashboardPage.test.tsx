@@ -18,7 +18,7 @@ vi.mock("@/api/commodities", () => ({
 vi.mock("@/api/health", () => ({
   DEFAULT_SERVICES: [{ name: "TestSvc", url: "http://localhost:9999" }],
   checkAllServices: vi.fn().mockResolvedValue([
-    { name: "TestSvc", url: "http://localhost:9999", status: "healthy", latencyMs: 10 },
+    { name: "TestSvc", url: "http://localhost:9999", status: "healthy", latencyMs: 10, errorMessage: null },
   ]),
 }))
 
