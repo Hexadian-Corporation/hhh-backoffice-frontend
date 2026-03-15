@@ -9,20 +9,20 @@ const mockContract: Contract = {
   id: "42",
   title: "Test Haul",
   description: "Move cargo from A to B",
-  contractor_name: "Acme Corp",
-  contractor_logo_url: "https://example.com/logo.png",
+  action: "haul",
   hauling_orders: [
     {
-      cargo_name: "Laranite",
-      cargo_quantity_scu: 100,
+      commodity: "Laranite",
+      scu_min: 50,
+      scu_max: 100,
+      max_container_scu: 32,
       pickup_location_id: "loc-1",
       delivery_location_id: "loc-2",
     },
   ],
-  reward_aUEC: 50000,
-  collateral_aUEC: 10000,
-  deadline_minutes: 120,
-  max_acceptances: 3,
+  reward_uec: 50000,
+  collateral_uec: 10000,
+  deadline: "2026-06-01T12:00:00Z",
   requirements: {
     min_reputation: 3,
     required_ship_tags: ["cargo"],
@@ -111,12 +111,11 @@ describe("ContractEditPage", () => {
     expect(screen.getByLabelText("Description")).toHaveValue(
       "Move cargo from A to B",
     );
-    expect(screen.getByLabelText("Contractor Name")).toHaveValue("Acme Corp");
+    expect(screen.getByLabelText("Action")).toHaveValue("haul");
     expect(screen.getByLabelText("Status")).toHaveValue("draft");
-    expect(screen.getByLabelText("Reward (aUEC)")).toHaveValue(50000);
-    expect(screen.getByLabelText("Collateral (aUEC)")).toHaveValue(10000);
-    expect(screen.getByLabelText("Deadline (minutes)")).toHaveValue(120);
-    expect(screen.getByLabelText("Max Acceptances")).toHaveValue(3);
+    expect(screen.getByLabelText("Reward (UEC)")).toHaveValue(50000);
+    expect(screen.getByLabelText("Collateral (UEC)")).toHaveValue(10000);
+    expect(screen.getByLabelText("Deadline")).toHaveValue("2026-06-01T12:00");
   });
 
   it("can edit general fields", async () => {
@@ -136,14 +135,14 @@ describe("ContractEditPage", () => {
     await userEvent.click(screen.getByText("Hauling Orders"));
 
     // Existing order
-    expect(screen.getByLabelText("Cargo Name")).toHaveValue("Laranite");
+    expect(screen.getByLabelText("Commodity")).toHaveValue("Laranite");
 
     // Add order
     await userEvent.click(screen.getByText("Add Order"));
-    const cargoInputs = screen.getAllByRole("textbox", {
-      name: /cargo name/i,
+    const commodityInputs = screen.getAllByRole("textbox", {
+      name: /commodity/i,
     });
-    expect(cargoInputs).toHaveLength(2);
+    expect(commodityInputs).toHaveLength(2);
 
     // Remove order 2
     const removeButtons = screen.getAllByRole("button", {
@@ -151,7 +150,7 @@ describe("ContractEditPage", () => {
     });
     await userEvent.click(removeButtons[1]);
     expect(
-      screen.getAllByRole("textbox", { name: /cargo name/i }),
+      screen.getAllByRole("textbox", { name: /commodity/i }),
     ).toHaveLength(1);
   });
 
@@ -247,15 +246,7 @@ describe("ContractEditPage", () => {
     expect(await screen.findByText("Contract List")).toBeInTheDocument();
   });
 
-  // -- Logo preview --
-  it("shows contractor logo preview when URL is set", async () => {
-    renderPage();
-    await screen.findByText("Edit Contract");
-
-    const img = screen.getByAltText("Contractor logo");
-    expect(img).toBeInTheDocument();
-    expect(img).toHaveAttribute("src", "https://example.com/logo.png");
-  });
+  // -- Logo preview removed (contractor fields removed) --
 
   // -- Max crew size optional --
   it("handles max_crew_size as optional (null when empty)", async () => {

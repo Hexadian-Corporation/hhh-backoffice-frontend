@@ -9,8 +9,10 @@ interface HaulingOrdersTabProps {
 }
 
 const EMPTY_ORDER: HaulingOrder = {
-  cargo_name: "",
-  cargo_quantity_scu: 0,
+  commodity: "",
+  scu_min: 0,
+  scu_max: 0,
+  max_container_scu: 0,
   pickup_location_id: "",
   delivery_location_id: "",
 };
@@ -69,43 +71,81 @@ export default function HaulingOrdersTab({
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <label
-                htmlFor={`cargo_name_${index}`}
+                htmlFor={`commodity_${index}`}
                 className="block text-sm font-medium mb-1"
               >
-                Cargo Name
+                Commodity
               </label>
               <input
-                id={`cargo_name_${index}`}
+                id={`commodity_${index}`}
                 type="text"
-                value={order.cargo_name}
+                value={order.commodity}
                 onChange={(e) =>
-                  updateField(index, "cargo_name", e.target.value)
+                  updateField(index, "commodity", e.target.value)
                 }
                 className="w-full rounded-md border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)] focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)]"
               />
-              {errors[`hauling_orders.${index}.cargo_name`] && (
+              {errors[`hauling_orders.${index}.commodity`] && (
                 <p className="mt-1 text-xs text-[var(--color-danger)]">
-                  {errors[`hauling_orders.${index}.cargo_name`]}
+                  {errors[`hauling_orders.${index}.commodity`]}
                 </p>
               )}
             </div>
 
             <div>
               <label
-                htmlFor={`cargo_quantity_scu_${index}`}
+                htmlFor={`scu_min_${index}`}
                 className="block text-sm font-medium mb-1"
               >
-                Quantity (SCU)
+                SCU Min
               </label>
               <input
-                id={`cargo_quantity_scu_${index}`}
+                id={`scu_min_${index}`}
                 type="number"
                 min={0}
-                value={order.cargo_quantity_scu}
+                value={order.scu_min}
+                onChange={(e) =>
+                  updateField(index, "scu_min", Number(e.target.value))
+                }
+                className="w-full rounded-md border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)] focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)]"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor={`scu_max_${index}`}
+                className="block text-sm font-medium mb-1"
+              >
+                SCU Max
+              </label>
+              <input
+                id={`scu_max_${index}`}
+                type="number"
+                min={0}
+                value={order.scu_max}
+                onChange={(e) =>
+                  updateField(index, "scu_max", Number(e.target.value))
+                }
+                className="w-full rounded-md border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)] focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)]"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor={`max_container_scu_${index}`}
+                className="block text-sm font-medium mb-1"
+              >
+                Max Container SCU
+              </label>
+              <input
+                id={`max_container_scu_${index}`}
+                type="number"
+                min={0}
+                value={order.max_container_scu}
                 onChange={(e) =>
                   updateField(
                     index,
-                    "cargo_quantity_scu",
+                    "max_container_scu",
                     Number(e.target.value),
                   )
                 }

@@ -45,44 +45,21 @@ export default function GeneralTab({ form, errors, onChange }: GeneralTabProps) 
         )}
       </div>
 
-      {/* Contractor Name */}
+      {/* Action */}
       <div>
-        <label htmlFor="contractor_name" className="block text-sm font-medium mb-1">
-          Contractor Name
+        <label htmlFor="action" className="block text-sm font-medium mb-1">
+          Action
         </label>
         <input
-          id="contractor_name"
+          id="action"
           type="text"
-          value={form.contractor_name}
-          onChange={(e) => onChange("contractor_name", e.target.value)}
+          value={form.action}
+          onChange={(e) => onChange("action", e.target.value)}
           className="w-full rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)] focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)]"
         />
-        {errors.contractor_name && (
-          <p className="mt-1 text-xs text-[var(--color-danger)]">{errors.contractor_name}</p>
+        {errors.action && (
+          <p className="mt-1 text-xs text-[var(--color-danger)]">{errors.action}</p>
         )}
-      </div>
-
-      {/* Contractor Logo URL */}
-      <div>
-        <label htmlFor="contractor_logo_url" className="block text-sm font-medium mb-1">
-          Contractor Logo URL
-        </label>
-        <div className="flex items-center gap-3">
-          <input
-            id="contractor_logo_url"
-            type="text"
-            value={form.contractor_logo_url}
-            onChange={(e) => onChange("contractor_logo_url", e.target.value)}
-            className="flex-1 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)] focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)]"
-          />
-          {form.contractor_logo_url && (
-            <img
-              src={form.contractor_logo_url}
-              alt="Contractor logo"
-              className="h-9 w-9 rounded-md border border-[var(--color-border)] object-cover"
-            />
-          )}
-        </div>
       </div>
 
       {/* Status */}
@@ -108,73 +85,57 @@ export default function GeneralTab({ form, errors, onChange }: GeneralTabProps) 
 
       {/* Reward */}
       <div>
-        <label htmlFor="reward_aUEC" className="block text-sm font-medium mb-1">
-          Reward (aUEC)
+        <label htmlFor="reward_uec" className="block text-sm font-medium mb-1">
+          Reward (UEC)
         </label>
         <input
-          id="reward_aUEC"
+          id="reward_uec"
           type="number"
           min={0}
-          value={form.reward_aUEC}
-          onChange={(e) => onChange("reward_aUEC", Number(e.target.value))}
+          value={form.reward_uec}
+          onChange={(e) => onChange("reward_uec", Number(e.target.value))}
           className="w-full rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)] focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)]"
         />
-        {errors.reward_aUEC && (
-          <p className="mt-1 text-xs text-[var(--color-danger)]">{errors.reward_aUEC}</p>
+        {errors.reward_uec && (
+          <p className="mt-1 text-xs text-[var(--color-danger)]">{errors.reward_uec}</p>
         )}
       </div>
 
       {/* Collateral */}
       <div>
-        <label htmlFor="collateral_aUEC" className="block text-sm font-medium mb-1">
-          Collateral (aUEC)
+        <label htmlFor="collateral_uec" className="block text-sm font-medium mb-1">
+          Collateral (UEC)
         </label>
         <input
-          id="collateral_aUEC"
+          id="collateral_uec"
           type="number"
           min={0}
-          value={form.collateral_aUEC}
-          onChange={(e) => onChange("collateral_aUEC", Number(e.target.value))}
+          value={form.collateral_uec}
+          onChange={(e) => onChange("collateral_uec", Number(e.target.value))}
           className="w-full rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)] focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)]"
         />
-        {errors.collateral_aUEC && (
-          <p className="mt-1 text-xs text-[var(--color-danger)]">{errors.collateral_aUEC}</p>
+        {errors.collateral_uec && (
+          <p className="mt-1 text-xs text-[var(--color-danger)]">{errors.collateral_uec}</p>
         )}
       </div>
 
       {/* Deadline */}
       <div>
-        <label htmlFor="deadline_minutes" className="block text-sm font-medium mb-1">
-          Deadline (minutes)
+        <label htmlFor="deadline" className="block text-sm font-medium mb-1">
+          Deadline
         </label>
         <input
-          id="deadline_minutes"
-          type="number"
-          min={1}
-          value={form.deadline_minutes}
-          onChange={(e) => onChange("deadline_minutes", Number(e.target.value))}
+          id="deadline"
+          type="datetime-local"
+          value={form.deadline ? form.deadline.slice(0, 16) : ""}
+          onChange={(e) => {
+            const val = e.target.value;
+            onChange("deadline", val ? new Date(val).toISOString() : "");
+          }}
           className="w-full rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)] focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)]"
         />
-        {errors.deadline_minutes && (
-          <p className="mt-1 text-xs text-[var(--color-danger)]">{errors.deadline_minutes}</p>
-        )}
-      </div>
-
-      {/* Max Acceptances */}
-      <div>
-        <label htmlFor="max_acceptances" className="block text-sm font-medium mb-1">
-          Max Acceptances
-        </label>
-        <input
-          id="max_acceptances"
-          type="number"
-          min={1}
-          value={form.max_acceptances}
-          onChange={(e) => onChange("max_acceptances", Number(e.target.value))}
-          className="w-full rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)] focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)]"
-        />
-        {errors.max_acceptances && (
-          <p className="mt-1 text-xs text-[var(--color-danger)]">{errors.max_acceptances}</p>
+        {errors.deadline && (
+          <p className="mt-1 text-xs text-[var(--color-danger)]">{errors.deadline}</p>
         )}
       </div>
     </div>

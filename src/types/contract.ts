@@ -1,6 +1,8 @@
 export interface HaulingOrder {
-  cargo_name: string;
-  cargo_quantity_scu: number;
+  commodity: string;
+  scu_min: number;
+  scu_max: number;
+  max_container_scu: number;
   pickup_location_id: string;
   delivery_location_id: string;
 }
@@ -15,13 +17,11 @@ export interface Contract {
   id: string;
   title: string;
   description: string;
-  contractor_name: string;
-  contractor_logo_url: string;
+  action: string;
   hauling_orders: HaulingOrder[];
-  reward_aUEC: number;
-  collateral_aUEC: number;
-  deadline_minutes: number;
-  max_acceptances: number;
+  reward_uec: number;
+  collateral_uec: number;
+  deadline: string; // ISO 8601 datetime
   requirements: Requirements;
   status: 'draft' | 'active' | 'expired' | 'cancelled';
   created_at: string;
