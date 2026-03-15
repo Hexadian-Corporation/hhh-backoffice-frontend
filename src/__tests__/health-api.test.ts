@@ -37,10 +37,11 @@ describe("checkServiceHealth", () => {
       url: "http://localhost:9999",
       status: "healthy",
       latencyMs: 42,
+      errorMessage: null,
     });
   });
 
-  it("returns down when fetch succeeds with non-ok response", async () => {
+  it("returns down with HTTP status when fetch succeeds with non-ok response", async () => {
     (fetch as Mock).mockResolvedValueOnce({
       ok: false,
       status: 503,
@@ -51,9 +52,10 @@ describe("checkServiceHealth", () => {
 
     expect(result.status).toBe("down");
     expect(result.latencyMs).toBe(42);
+    expect(result.errorMessage).toBe("HTTP 503");
   });
 
-  it("returns down with null latency when fetch throws", async () => {
+  it("returns 'Connection refused' when fetch throws TypeError", async () => {
     (fetch as Mock).mockRejectedValueOnce(new TypeError("Failed to fetch"));
 
     const result = await checkServiceHealth(testService);
@@ -63,6 +65,52 @@ describe("checkServiceHealth", () => {
       url: "http://localhost:9999",
       status: "down",
       latencyMs: null,
+      errorMessage: "Connection refused",
+    });
+  });
+
+  it("returns 'Timeout (5s)' when fetch throws TimeoutError", async () => {
+    const timeoutError = new DOMException("The operation was aborted", "TimeoutError");
+    (fetch as Mock).mockRejectedValueOnce(timeoutError);
+
+    const result = await checkServiceHealth(testService);
+
+    expect(result).toEqual({
+      name: "TestSvc",
+      url: "http://localhost:9999",
+      status: "down",
+      latencyMs: null,
+      errorMessage: "Timeout (5s)",
+    });
+  });
+
+  it("returns 'CORS error' when fetch throws TypeError with CORS message", async () => {
+    (fetch as Mock).mockRejectedValueOnce(
+      new TypeError("Failed to fetch: CORS request did not succeed"),
+    );
+
+    const result = await checkServiceHealth(testService);
+
+    expect(result).toEqual({
+      name: "TestSvc",
+      url: "http://localhost:9999",
+      status: "down",
+      latencyMs: null,
+      errorMessage: "CORS error",
+    });
+  });
+
+  it("returns 'Network error' for non-TypeError exceptions", async () => {
+    (fetch as Mock).mockRejectedValueOnce(new Error("Something unexpected"));
+
+    const result = await checkServiceHealth(testService);
+
+    expect(result).toEqual({
+      name: "TestSvc",
+      url: "http://localhost:9999",
+      status: "down",
+      latencyMs: null,
+      errorMessage: "Network error",
     });
   });
 });

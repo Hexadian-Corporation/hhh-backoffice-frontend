@@ -19,13 +19,13 @@ const testServices: ServiceConfig[] = [
 ];
 
 const healthyResults: ServiceHealth[] = [
-  { name: "Contracts", url: "http://localhost:8001", status: "healthy", latencyMs: 15 },
-  { name: "Ships", url: "http://localhost:8002", status: "healthy", latencyMs: 22 },
+  { name: "Contracts", url: "http://localhost:8001", status: "healthy", latencyMs: 15, errorMessage: null },
+  { name: "Ships", url: "http://localhost:8002", status: "healthy", latencyMs: 22, errorMessage: null },
 ];
 
 const downResults: ServiceHealth[] = [
-  { name: "Contracts", url: "http://localhost:8001", status: "down", latencyMs: null },
-  { name: "Ships", url: "http://localhost:8002", status: "down", latencyMs: null },
+  { name: "Contracts", url: "http://localhost:8001", status: "down", latencyMs: null, errorMessage: "Connection refused" },
+  { name: "Ships", url: "http://localhost:8002", status: "down", latencyMs: null, errorMessage: "Timeout (5s)" },
 ];
 
 afterEach(() => {
@@ -67,6 +67,32 @@ describe("HealthPanel", () => {
     await waitFor(() => {
       expect(screen.getAllByText("Unreachable")).toHaveLength(2);
     });
+  });
+
+  it("shows error reason for down services", async () => {
+    (checkAllServices as Mock).mockResolvedValue(downResults);
+
+    render(<HealthPanel services={testServices} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Connection refused")).toBeInTheDocument();
+      expect(screen.getByText("Timeout (5s)")).toBeInTheDocument();
+    });
+  });
+
+  it("does not show error message for healthy services", async () => {
+    (checkAllServices as Mock).mockResolvedValue(healthyResults);
+
+    render(<HealthPanel services={testServices} />);
+
+    await waitFor(() => {
+      expect(screen.getAllByText("Healthy")).toHaveLength(2);
+    });
+
+    expect(screen.queryByText("Connection refused")).not.toBeInTheDocument();
+    expect(screen.queryByText("Timeout (5s)")).not.toBeInTheDocument();
+    expect(screen.queryByText("Network error")).not.toBeInTheDocument();
+    expect(screen.queryByText("CORS error")).not.toBeInTheDocument();
   });
 
   it("shows latency for healthy services", async () => {
