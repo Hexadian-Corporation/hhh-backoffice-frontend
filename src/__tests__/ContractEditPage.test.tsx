@@ -9,20 +9,20 @@ const mockContract: Contract = {
   id: "42",
   title: "Test Haul",
   description: "Move cargo from A to B",
-  contractor_name: "Acme Corp",
-  contractor_logo_url: "https://example.com/logo.png",
+  action: "haul",
   hauling_orders: [
     {
-      cargo_name: "Laranite",
-      cargo_quantity_scu: 100,
+      commodity: "Laranite",
+      scu_min: 50,
+      scu_max: 100,
+      max_container_scu: 32,
       pickup_location_id: "loc-1",
       delivery_location_id: "loc-2",
     },
   ],
-  reward_aUEC: 50000,
-  collateral_aUEC: 10000,
-  deadline_minutes: 120,
-  max_acceptances: 3,
+  reward_uec: 50000,
+  collateral_uec: 10000,
+  deadline: "2026-06-01T12:00:00Z",
   requirements: {
     min_reputation: 3,
     required_ship_tags: ["cargo"],
@@ -111,12 +111,11 @@ describe("ContractEditPage", () => {
     expect(screen.getByLabelText("Description")).toHaveValue(
       "Move cargo from A to B",
     );
-    expect(screen.getByLabelText("Contractor Name")).toHaveValue("Acme Corp");
+    expect(screen.getByLabelText("Action")).toHaveValue("haul");
     expect(screen.getByLabelText("Status")).toHaveValue("draft");
-    expect(screen.getByLabelText("Reward (aUEC)")).toHaveValue(50000);
-    expect(screen.getByLabelText("Collateral (aUEC)")).toHaveValue(10000);
-    expect(screen.getByLabelText("Deadline (minutes)")).toHaveValue(120);
-    expect(screen.getByLabelText("Max Acceptances")).toHaveValue(3);
+    expect(screen.getByLabelText("Reward (UEC)")).toHaveValue(50000);
+    expect(screen.getByLabelText("Collateral (UEC)")).toHaveValue(10000);
+    expect(screen.getByLabelText("Deadline")).toHaveValue("2026-06-01T12:00");
   });
 
   it("can edit general fields", async () => {
@@ -127,6 +126,13 @@ describe("ContractEditPage", () => {
     await userEvent.clear(titleInput);
     await userEvent.type(titleInput, "New Title");
     expect(titleInput).toHaveValue("New Title");
+
+    // Edit deadline (datetime-local input)
+    const deadlineInput = screen.getByLabelText("Deadline");
+    // Firing a change event on datetime-local
+    await userEvent.clear(deadlineInput);
+    await userEvent.type(deadlineInput, "2026-12-25T15:30");
+    expect(deadlineInput).toHaveValue("2026-12-25T15:30");
   });
 
   // -- Hauling Orders Tab --
@@ -136,14 +142,14 @@ describe("ContractEditPage", () => {
     await userEvent.click(screen.getByText("Hauling Orders"));
 
     // Existing order
-    expect(screen.getByLabelText("Cargo Name")).toHaveValue("Laranite");
+    expect(screen.getByLabelText("Commodity")).toHaveValue("Laranite");
 
     // Add order
     await userEvent.click(screen.getByText("Add Order"));
-    const cargoInputs = screen.getAllByRole("textbox", {
-      name: /cargo name/i,
+    const commodityInputs = screen.getAllByRole("textbox", {
+      name: /commodity/i,
     });
-    expect(cargoInputs).toHaveLength(2);
+    expect(commodityInputs).toHaveLength(2);
 
     // Remove order 2
     const removeButtons = screen.getAllByRole("button", {
@@ -151,8 +157,54 @@ describe("ContractEditPage", () => {
     });
     await userEvent.click(removeButtons[1]);
     expect(
-      screen.getAllByRole("textbox", { name: /cargo name/i }),
+      screen.getAllByRole("textbox", { name: /commodity/i }),
     ).toHaveLength(1);
+  });
+
+  it("can edit hauling order fields", async () => {
+    renderPage();
+    await screen.findByText("Edit Contract");
+    await userEvent.click(screen.getByText("Hauling Orders"));
+
+    // Edit commodity
+    const commodityInput = screen.getByLabelText("Commodity");
+    await userEvent.clear(commodityInput);
+    await userEvent.type(commodityInput, "Titanium");
+    expect(commodityInput).toHaveValue("Titanium");
+
+    // Edit SCU Min
+    const scuMinInput = screen.getByLabelText("SCU Min");
+    await userEvent.clear(scuMinInput);
+    await userEvent.type(scuMinInput, "10");
+    expect(scuMinInput).toHaveValue(10);
+
+    // Edit SCU Max
+    const scuMaxInput = screen.getByLabelText("SCU Max");
+    await userEvent.clear(scuMaxInput);
+    await userEvent.type(scuMaxInput, "200");
+    expect(scuMaxInput).toHaveValue(200);
+
+    // Edit Max Container SCU
+    const maxContainerInput = screen.getByLabelText("Max Container SCU");
+    await userEvent.clear(maxContainerInput);
+    await userEvent.type(maxContainerInput, "64");
+    expect(maxContainerInput).toHaveValue(64);
+  });
+
+  it("shows commodity validation error when empty", async () => {
+    renderPage();
+    await screen.findByText("Edit Contract");
+    await userEvent.click(screen.getByText("Hauling Orders"));
+
+    // Clear commodity
+    await userEvent.clear(screen.getByLabelText("Commodity"));
+
+    // Save triggers validation
+    await userEvent.click(screen.getByText("General"));
+    await userEvent.click(screen.getByText("Save"));
+
+    await userEvent.click(screen.getByText("Hauling Orders"));
+    expect(screen.getByText("Commodity is required")).toBeInTheDocument();
   });
 
   // -- Requirements Tab --
@@ -208,13 +260,34 @@ describe("ContractEditPage", () => {
     renderPage();
     await screen.findByText("Edit Contract");
 
-    // Clear required field
-    const titleInput = screen.getByLabelText("Title");
-    await userEvent.clear(titleInput);
+    // Clear required fields
+    await userEvent.clear(screen.getByLabelText("Title"));
+    await userEvent.clear(screen.getByLabelText("Description"));
+    await userEvent.clear(screen.getByLabelText("Action"));
 
     await userEvent.click(screen.getByText("Save"));
 
     expect(screen.getByText("Title is required")).toBeInTheDocument();
+    expect(screen.getByText("Description is required")).toBeInTheDocument();
+    expect(screen.getByText("Action is required")).toBeInTheDocument();
+  });
+
+  it("shows deadline validation error when deadline is empty", async () => {
+    // Mock a contract with empty deadline
+    (fetch as Mock).mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      statusText: "OK",
+      json: () =>
+        Promise.resolve({ ...mockContract, deadline: "" }),
+    });
+
+    renderPage();
+    await screen.findByText("Edit Contract");
+
+    await userEvent.click(screen.getByText("Save"));
+
+    expect(screen.getByText("Deadline is required")).toBeInTheDocument();
   });
 
   it("shows hauling validation error when all orders removed", async () => {
@@ -247,15 +320,7 @@ describe("ContractEditPage", () => {
     expect(await screen.findByText("Contract List")).toBeInTheDocument();
   });
 
-  // -- Logo preview --
-  it("shows contractor logo preview when URL is set", async () => {
-    renderPage();
-    await screen.findByText("Edit Contract");
-
-    const img = screen.getByAltText("Contractor logo");
-    expect(img).toBeInTheDocument();
-    expect(img).toHaveAttribute("src", "https://example.com/logo.png");
-  });
+  // -- Logo preview removed (contractor fields removed) --
 
   // -- Max crew size optional --
   it("handles max_crew_size as optional (null when empty)", async () => {

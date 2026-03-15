@@ -20,21 +20,21 @@ const TABS: { key: TabKey; label: string }[] = [
 const INITIAL_FORM: ContractCreate = {
   title: "",
   description: "",
-  contractor_name: "",
-  contractor_logo_url: "",
+  action: "",
   status: "draft",
   hauling_orders: [
     {
-      cargo_name: "",
-      cargo_quantity_scu: 0,
+      commodity: "",
+      scu_min: 0,
+      scu_max: 0,
+      max_container_scu: 0,
       pickup_location_id: "",
       delivery_location_id: "",
     },
   ],
-  reward_aUEC: 0,
-  collateral_aUEC: 0,
-  deadline_minutes: 1,
-  max_acceptances: 1,
+  reward_uec: 0,
+  collateral_uec: 0,
+  deadline: "",
   requirements: {
     min_reputation: 0,
     required_ship_tags: [],
@@ -47,22 +47,18 @@ function validate(form: ContractCreate): Record<string, string> {
 
   if (!form.title.trim()) errors.title = "Title is required";
   if (!form.description.trim()) errors.description = "Description is required";
-  if (!form.contractor_name.trim())
-    errors.contractor_name = "Contractor name is required";
-  if (form.reward_aUEC < 0) errors.reward_aUEC = "Reward must be ≥ 0";
-  if (form.collateral_aUEC < 0)
-    errors.collateral_aUEC = "Collateral must be ≥ 0";
-  if (form.deadline_minutes < 1)
-    errors.deadline_minutes = "Deadline must be ≥ 1";
-  if (form.max_acceptances < 1)
-    errors.max_acceptances = "Max acceptances must be ≥ 1";
+  if (!form.action.trim()) errors.action = "Action is required";
+  if (form.reward_uec < 0) errors.reward_uec = "Reward must be ≥ 0";
+  if (form.collateral_uec < 0)
+    errors.collateral_uec = "Collateral must be ≥ 0";
+  if (!form.deadline.trim()) errors.deadline = "Deadline is required";
 
   if (form.hauling_orders.length === 0)
     errors.hauling_orders = "At least 1 hauling order is required";
 
   form.hauling_orders.forEach((order, i) => {
-    if (!order.cargo_name.trim())
-      errors[`hauling_orders.${i}.cargo_name`] = "Cargo name is required";
+    if (!order.commodity.trim())
+      errors[`hauling_orders.${i}.commodity`] = "Commodity is required";
     if (!order.pickup_location_id.trim())
       errors[`hauling_orders.${i}.pickup_location_id`] =
         "Pickup location is required";
@@ -103,14 +99,12 @@ export default function ContractEditPage() {
         setForm({
           title: contract.title,
           description: contract.description,
-          contractor_name: contract.contractor_name,
-          contractor_logo_url: contract.contractor_logo_url,
+          action: contract.action,
           status: contract.status,
           hauling_orders: contract.hauling_orders,
-          reward_aUEC: contract.reward_aUEC,
-          collateral_aUEC: contract.collateral_aUEC,
-          deadline_minutes: contract.deadline_minutes,
-          max_acceptances: contract.max_acceptances,
+          reward_uec: contract.reward_uec,
+          collateral_uec: contract.collateral_uec,
+          deadline: contract.deadline,
           requirements: contract.requirements,
         });
       })
