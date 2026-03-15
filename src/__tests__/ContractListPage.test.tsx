@@ -451,4 +451,128 @@ describe("ContractListPage", () => {
     expect(screen.getByText("Contratos")).toBeInTheDocument();
     expect(screen.queryByText("Edit Contract Page")).not.toBeInTheDocument();
   });
+
+  // -- Delete --
+  it("shows delete button on each contract card", async () => {
+    renderPage();
+    await screen.findByText("Contratos");
+
+    expect(
+      screen.getByLabelText("Delete Laranite Haul"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByLabelText("Delete Titanium Express"),
+    ).toBeInTheDocument();
+  });
+
+  it("shows confirmation dialog when clicking delete button", async () => {
+    renderPage();
+    await screen.findByText("Contratos");
+
+    await userEvent.click(screen.getByLabelText("Delete Laranite Haul"));
+
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Are you sure you want to delete 'Laranite Haul'? This action cannot be undone.",
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("closes delete dialog when clicking Cancel", async () => {
+    renderPage();
+    await screen.findByText("Contratos");
+
+    await userEvent.click(screen.getByLabelText("Delete Titanium Express"));
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+
+    const dialog = screen.getByRole("dialog");
+    await userEvent.click(within(dialog).getByText("Cancel"));
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    // Contract should still be there
+    expect(screen.getByText("Titanium Express")).toBeInTheDocument();
+  });
+
+  it("deletes contract and shows success toast on confirm", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+
+    (fetch as Mock)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(mockContracts),
+      })
+      .mockResolvedValueOnce({ ok: true });
+
+    renderPage();
+    await screen.findByText("Contratos");
+
+    await userEvent.click(screen.getByLabelText("Delete Laranite Haul"));
+
+    const dialog = screen.getByRole("dialog");
+    await userEvent.click(within(dialog).getByText("Delete"));
+
+    expect(
+      await screen.findByText("Contract deleted successfully"),
+    ).toBeInTheDocument();
+
+    // Contract should be removed from the list
+    expect(screen.queryByText("Laranite Haul")).not.toBeInTheDocument();
+    // Other contract should still be there
+    expect(screen.getByText("Titanium Express")).toBeInTheDocument();
+
+    // Verify DELETE call was made
+    const deleteCall = (fetch as Mock).mock.calls.find(
+      (call: string[]) =>
+        typeof call[0] === "string" &&
+        call[0].includes("/contracts/con-1") &&
+        call[1]?.method === "DELETE",
+    );
+    expect(deleteCall).toBeDefined();
+
+    vi.useRealTimers();
+  });
+
+  it("shows error toast when delete fails", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+
+    (fetch as Mock)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(mockContracts),
+      })
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+        statusText: "Internal Server Error",
+      });
+
+    renderPage();
+    await screen.findByText("Contratos");
+
+    await userEvent.click(screen.getByLabelText("Delete Laranite Haul"));
+
+    const dialog = screen.getByRole("dialog");
+    await userEvent.click(within(dialog).getByText("Delete"));
+
+    expect(
+      await screen.findByText("Failed to delete contract"),
+    ).toBeInTheDocument();
+
+    // Contract should still be in the list (not removed on error)
+    expect(screen.getByText("Laranite Haul")).toBeInTheDocument();
+
+    vi.useRealTimers();
+  });
+
+  it("does not navigate when clicking delete button", async () => {
+    renderPage();
+    await screen.findByText("Contratos");
+
+    await userEvent.click(screen.getByLabelText("Delete Laranite Haul"));
+
+    // Should still be on the list page
+    expect(screen.getByText("Contratos")).toBeInTheDocument();
+    expect(screen.queryByText("Edit Contract Page")).not.toBeInTheDocument();
+  });
 });
