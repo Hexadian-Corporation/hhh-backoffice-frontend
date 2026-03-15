@@ -27,6 +27,17 @@ const mockParent: Location = {
   landing_pad_size: null,
 };
 
+const mockSystem: Location = {
+  id: "system-1",
+  name: "Stanton",
+  location_type: "system",
+  parent_id: null,
+  coordinates: { x: 0, y: 0, z: 0 },
+  has_trade_terminal: false,
+  has_landing_pad: false,
+  landing_pad_size: null,
+};
+
 function renderEditPage(id = "loc-1") {
   return render(
     <MemoryRouter initialEntries={[`/locations/${id}`]}>
@@ -54,6 +65,14 @@ beforeEach(() => {
   vi.stubGlobal(
     "fetch",
     vi.fn((url: string) => {
+      if (url.includes("location_type=system")) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          statusText: "OK",
+          json: () => Promise.resolve([mockSystem]),
+        });
+      }
       if (url.includes("/locations/planet-1")) {
         return Promise.resolve({
           ok: true,
@@ -243,20 +262,37 @@ describe("LocationEditPage - Edit mode", () => {
   });
 
   it("shows error toast when save fails", async () => {
-    (fetch as Mock)
-      .mockResolvedValueOnce({
+    (fetch as Mock).mockImplementation((url: string, init?: RequestInit) => {
+      if (init?.method === "PUT") {
+        return Promise.resolve({
+          ok: false,
+          status: 500,
+          statusText: "Internal Server Error",
+        });
+      }
+      if (url.includes("location_type=system")) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          statusText: "OK",
+          json: () => Promise.resolve([mockSystem]),
+        });
+      }
+      if (url.includes("/locations/planet-1")) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          statusText: "OK",
+          json: () => Promise.resolve(mockParent),
+        });
+      }
+      return Promise.resolve({
         ok: true,
+        status: 200,
+        statusText: "OK",
         json: () => Promise.resolve(mockLocation),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve(mockParent),
-      })
-      .mockResolvedValueOnce({
-        ok: false,
-        status: 500,
-        statusText: "Internal Server Error",
       });
+    });
 
     renderEditPage();
     await screen.findByText("Edit Location");
@@ -307,10 +343,15 @@ describe("LocationEditPage - Create mode", () => {
       name: "Test Station",
     };
 
-    (fetch as Mock).mockResolvedValueOnce({
-      ok: true,
-      json: () => Promise.resolve(createdLocation),
-    });
+    (fetch as Mock)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve([mockSystem]),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(createdLocation),
+      });
 
     renderNewPage();
 
@@ -338,10 +379,15 @@ describe("LocationEditPage - Create mode", () => {
   it("shows parent search results and allows selection", async () => {
     const searchResults: Location[] = [mockParent];
 
-    (fetch as Mock).mockResolvedValueOnce({
-      ok: true,
-      json: () => Promise.resolve(searchResults),
-    });
+    (fetch as Mock)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve([mockSystem]),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(searchResults),
+      });
 
     renderNewPage();
 
@@ -359,5 +405,75 @@ describe("LocationEditPage - Create mode", () => {
     expect(
       screen.queryByPlaceholderText("Search parent location…"),
     ).not.toBeInTheDocument();
+  });
+
+  it("shows star system selector for non-system types", async () => {
+    renderNewPage();
+
+    // Default type is "station", should show Star System selector
+    expect(
+      await screen.findByLabelText("Star System"),
+    ).toBeInTheDocument();
+  });
+
+  it("hides star system selector when type is system", async () => {
+    renderNewPage();
+
+    await screen.findByLabelText("Star System");
+
+    const typeSelect = screen.getByLabelText("Location Type");
+    await userEvent.selectOptions(typeSelect, "system");
+
+    expect(screen.queryByLabelText("Star System")).not.toBeInTheDocument();
+  });
+
+  it("shows star system selector again when switching from system to planet", async () => {
+    renderNewPage();
+
+    await screen.findByLabelText("Star System");
+
+    const typeSelect = screen.getByLabelText("Location Type");
+    await userEvent.selectOptions(typeSelect, "system");
+    expect(screen.queryByLabelText("Star System")).not.toBeInTheDocument();
+
+    await userEvent.selectOptions(typeSelect, "planet");
+    expect(
+      await screen.findByLabelText("Star System"),
+    ).toBeInTheDocument();
+  });
+
+  it("sets parent_id when selecting a system from the dropdown", async () => {
+    renderNewPage();
+
+    const systemSelect = await screen.findByLabelText("Star System");
+    await userEvent.selectOptions(systemSelect, "system-1");
+
+    // Fill in required name and save to verify parent_id was set
+    await userEvent.type(screen.getByLabelText("Name"), "Test Station");
+
+    (fetch as Mock).mockResolvedValueOnce({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          id: "new-id",
+          name: "Test Station",
+          location_type: "station",
+          parent_id: "system-1",
+          coordinates: { x: 0, y: 0, z: 0 },
+          has_trade_terminal: false,
+          has_landing_pad: false,
+          landing_pad_size: null,
+        }),
+    });
+
+    await userEvent.click(screen.getByText("Save"));
+
+    expect(fetch).toHaveBeenCalledWith(
+      "http://localhost:8003/locations",
+      expect.objectContaining({
+        method: "POST",
+        body: expect.stringContaining('"parent_id":"system-1"'),
+      }),
+    );
   });
 });
