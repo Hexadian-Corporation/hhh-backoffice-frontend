@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import Autocomplete from "@/components/ui/Autocomplete";
 import type { AutocompleteOption } from "@/components/ui/Autocomplete";
 import { searchLocations, getLocation } from "@/api/locations";
+import { searchCommodities, getCommodity } from "@/api/commodities";
 import { Trash2, Plus } from "lucide-react";
 
 interface HaulingOrdersTabProps {
@@ -13,7 +14,7 @@ interface HaulingOrdersTabProps {
 }
 
 const EMPTY_ORDER: HaulingOrder = {
-  commodity: "",
+  commodity_id: "",
   scu_min: 0,
   scu_max: 0,
   max_container_scu: 0,
@@ -29,12 +30,20 @@ export default function HaulingOrdersTab({
   const [locationNames, setLocationNames] = useState<Record<string, string>>(
     {},
   );
+  const [commodityNames, setCommodityNames] = useState<Record<string, string>>(
+    {},
+  );
 
   const locationIdKey = useMemo(
     () =>
       orders
         .map((o) => `${o.pickup_location_id}:${o.delivery_location_id}`)
         .join(","),
+    [orders],
+  );
+
+  const commodityIdKey = useMemo(
+    () => orders.map((o) => o.commodity_id).join(","),
     [orders],
   );
 
@@ -75,12 +84,55 @@ export default function HaulingOrdersTab({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locationIdKey]);
 
+  useEffect(() => {
+    const idsToResolve = new Set<string>();
+    for (const order of orders) {
+      if (order.commodity_id && !commodityNames[order.commodity_id])
+        idsToResolve.add(order.commodity_id);
+    }
+
+    if (idsToResolve.size === 0) return;
+
+    let cancelled = false;
+    for (const commId of idsToResolve) {
+      getCommodity(commId)
+        .then((comm) => {
+          if (!cancelled) {
+            setCommodityNames((prev) => ({
+              ...prev,
+              [comm.id]: `${comm.name} (${comm.code})`,
+            }));
+          }
+        })
+        .catch(() => {
+          // ignore resolution errors
+        });
+    }
+
+    return () => {
+      cancelled = true;
+    };
+    // Only resolve on mount / when commodity IDs change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [commodityIdKey]);
+
   const handleLocationSearch = useCallback(
     async (query: string): Promise<AutocompleteOption[]> => {
       const locations = await searchLocations(query);
       return locations.map((loc) => ({
         id: loc.id,
         label: `${loc.name} (${loc.location_type})`,
+      }));
+    },
+    [],
+  );
+
+  const handleCommoditySearch = useCallback(
+    async (query: string): Promise<AutocompleteOption[]> => {
+      const commodities = await searchCommodities(query);
+      return commodities.map((comm) => ({
+        id: comm.id,
+        label: `${comm.name} (${comm.code})`,
       }));
     },
     [],
@@ -122,6 +174,19 @@ export default function HaulingOrdersTab({
     updateField(index, field, "");
   }
 
+  function handleCommoditySelect(
+    index: number,
+    id: string,
+    label: string,
+  ) {
+    updateField(index, "commodity_id", id);
+    setCommodityNames((prev) => ({ ...prev, [id]: label }));
+  }
+
+  function handleCommodityClear(index: number) {
+    updateField(index, "commodity_id", "");
+  }
+
   return (
     <div className="space-y-4">
       {errors.hauling_orders && (
@@ -157,18 +222,20 @@ export default function HaulingOrdersTab({
               >
                 Commodity
               </label>
-              <input
+              <Autocomplete
                 id={`commodity_${index}`}
-                type="text"
-                value={order.commodity}
-                onChange={(e) =>
-                  updateField(index, "commodity", e.target.value)
+                value={order.commodity_id}
+                displayValue={commodityNames[order.commodity_id]}
+                placeholder="Search commodity…"
+                search={handleCommoditySearch}
+                onSelect={(id, label) =>
+                  handleCommoditySelect(index, id, label)
                 }
-                className="w-full rounded-md border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)] focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)]"
+                onClear={() => handleCommodityClear(index)}
               />
-              {errors[`hauling_orders.${index}.commodity`] && (
+              {errors[`hauling_orders.${index}.commodity_id`] && (
                 <p className="mt-1 text-xs text-[var(--color-danger)]">
-                  {errors[`hauling_orders.${index}.commodity`]}
+                  {errors[`hauling_orders.${index}.commodity_id`]}
                 </p>
               )}
             </div>
