@@ -85,6 +85,7 @@ describe('getContract', () => {
 
 describe('createContract', () => {
   it('sends POST /contracts with body and returns Contract', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id: _, created_at: _ca, updated_at: _ua, ...createData } = mockContract;
     const payload: ContractCreate = createData;
 
