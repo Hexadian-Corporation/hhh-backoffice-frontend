@@ -3,6 +3,7 @@ export interface ServiceHealth {
   url: string;
   status: "healthy" | "down" | "checking";
   latencyMs: number | null;
+  errorMessage: string | null;
 }
 
 export interface ServiceConfig {
@@ -30,13 +31,21 @@ export async function checkServiceHealth(service: ServiceConfig): Promise<Servic
       url: service.url,
       status: res.ok ? "healthy" : "down",
       latencyMs,
+      errorMessage: res.ok ? null : `HTTP ${res.status}`,
     };
-  } catch {
+  } catch (err: unknown) {
+    let errorMessage = "Network error";
+    if (err instanceof DOMException && err.name === "TimeoutError") {
+      errorMessage = "Timeout (5s)";
+    } else if (err instanceof TypeError) {
+      errorMessage = err.message.includes("CORS") ? "CORS error" : "Connection refused";
+    }
     return {
       name: service.name,
       url: service.url,
       status: "down",
       latencyMs: null,
+      errorMessage,
     };
   }
 }
