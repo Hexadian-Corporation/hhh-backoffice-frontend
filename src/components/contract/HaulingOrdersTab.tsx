@@ -1,5 +1,9 @@
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { HaulingOrder } from "@/types/contract";
 import { Button } from "@/components/ui/button";
+import Autocomplete from "@/components/ui/Autocomplete";
+import type { AutocompleteOption } from "@/components/ui/Autocomplete";
+import { searchLocations, getLocation } from "@/api/locations";
 import { Trash2, Plus } from "lucide-react";
 
 interface HaulingOrdersTabProps {
@@ -22,6 +26,66 @@ export default function HaulingOrdersTab({
   errors,
   onUpdate,
 }: HaulingOrdersTabProps) {
+  const [locationNames, setLocationNames] = useState<Record<string, string>>(
+    {},
+  );
+
+  const locationIdKey = useMemo(
+    () =>
+      orders
+        .map((o) => `${o.pickup_location_id}:${o.delivery_location_id}`)
+        .join(","),
+    [orders],
+  );
+
+  useEffect(() => {
+    const idsToResolve = new Set<string>();
+    for (const order of orders) {
+      if (order.pickup_location_id && !locationNames[order.pickup_location_id])
+        idsToResolve.add(order.pickup_location_id);
+      if (
+        order.delivery_location_id &&
+        !locationNames[order.delivery_location_id]
+      )
+        idsToResolve.add(order.delivery_location_id);
+    }
+
+    if (idsToResolve.size === 0) return;
+
+    let cancelled = false;
+    for (const locId of idsToResolve) {
+      getLocation(locId)
+        .then((loc) => {
+          if (!cancelled) {
+            setLocationNames((prev) => ({
+              ...prev,
+              [loc.id]: `${loc.name} (${loc.location_type})`,
+            }));
+          }
+        })
+        .catch(() => {
+          // ignore resolution errors
+        });
+    }
+
+    return () => {
+      cancelled = true;
+    };
+    // Only resolve on mount / when order IDs change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locationIdKey]);
+
+  const handleLocationSearch = useCallback(
+    async (query: string): Promise<AutocompleteOption[]> => {
+      const locations = await searchLocations(query);
+      return locations.map((loc) => ({
+        id: loc.id,
+        label: `${loc.name} (${loc.location_type})`,
+      }));
+    },
+    [],
+  );
+
   function addOrder() {
     onUpdate([...orders, { ...EMPTY_ORDER }]);
   }
@@ -39,6 +103,23 @@ export default function HaulingOrdersTab({
       i === index ? { ...o, [field]: value } : o,
     );
     onUpdate(updated);
+  }
+
+  function handleLocationSelect(
+    index: number,
+    field: "pickup_location_id" | "delivery_location_id",
+    id: string,
+    label: string,
+  ) {
+    updateField(index, field, id);
+    setLocationNames((prev) => ({ ...prev, [id]: label }));
+  }
+
+  function handleLocationClear(
+    index: number,
+    field: "pickup_location_id" | "delivery_location_id",
+  ) {
+    updateField(index, field, "");
   }
 
   return (
@@ -158,16 +239,25 @@ export default function HaulingOrdersTab({
                 htmlFor={`pickup_location_id_${index}`}
                 className="block text-sm font-medium mb-1"
               >
-                Pickup Location ID
+                Pickup Location
               </label>
-              <input
+              <Autocomplete
                 id={`pickup_location_id_${index}`}
-                type="text"
                 value={order.pickup_location_id}
-                onChange={(e) =>
-                  updateField(index, "pickup_location_id", e.target.value)
+                displayValue={locationNames[order.pickup_location_id]}
+                placeholder="Search pickup location…"
+                search={handleLocationSearch}
+                onSelect={(id, label) =>
+                  handleLocationSelect(
+                    index,
+                    "pickup_location_id",
+                    id,
+                    label,
+                  )
                 }
-                className="w-full rounded-md border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)] focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)]"
+                onClear={() =>
+                  handleLocationClear(index, "pickup_location_id")
+                }
               />
               {errors[`hauling_orders.${index}.pickup_location_id`] && (
                 <p className="mt-1 text-xs text-[var(--color-danger)]">
@@ -181,16 +271,25 @@ export default function HaulingOrdersTab({
                 htmlFor={`delivery_location_id_${index}`}
                 className="block text-sm font-medium mb-1"
               >
-                Delivery Location ID
+                Delivery Location
               </label>
-              <input
+              <Autocomplete
                 id={`delivery_location_id_${index}`}
-                type="text"
                 value={order.delivery_location_id}
-                onChange={(e) =>
-                  updateField(index, "delivery_location_id", e.target.value)
+                displayValue={locationNames[order.delivery_location_id]}
+                placeholder="Search delivery location…"
+                search={handleLocationSearch}
+                onSelect={(id, label) =>
+                  handleLocationSelect(
+                    index,
+                    "delivery_location_id",
+                    id,
+                    label,
+                  )
                 }
-                className="w-full rounded-md border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)] focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)]"
+                onClear={() =>
+                  handleLocationClear(index, "delivery_location_id")
+                }
               />
               {errors[`hauling_orders.${index}.delivery_location_id`] && (
                 <p className="mt-1 text-xs text-[var(--color-danger)]">

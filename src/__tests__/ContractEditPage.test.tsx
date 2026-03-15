@@ -4,6 +4,7 @@ import { MemoryRouter, Route, Routes } from "react-router";
 import { vi, type Mock } from "vitest";
 import ContractEditPage from "@/pages/ContractEditPage";
 import type { Contract } from "@/types/contract";
+import type { Location } from "@/types/location";
 
 const mockContract: Contract = {
   id: "42",
@@ -33,6 +34,28 @@ const mockContract: Contract = {
   updated_at: "2026-01-01T00:00:00Z",
 };
 
+const mockPickupLocation: Location = {
+  id: "loc-1",
+  name: "Port Olisar",
+  location_type: "station",
+  parent_id: null,
+  coordinates: { x: 0, y: 0, z: 0 },
+  has_trade_terminal: true,
+  has_landing_pad: true,
+  landing_pad_size: "large",
+};
+
+const mockDeliveryLocation: Location = {
+  id: "loc-2",
+  name: "Area18",
+  location_type: "city",
+  parent_id: null,
+  coordinates: { x: 100, y: 100, z: 100 },
+  has_trade_terminal: true,
+  has_landing_pad: true,
+  landing_pad_size: "large",
+};
+
 function renderPage(id = "42") {
   return render(
     <MemoryRouter initialEntries={[`/contracts/${id}`]}>
@@ -47,14 +70,33 @@ function renderPage(id = "42") {
 beforeEach(() => {
   vi.stubGlobal(
     "fetch",
-    vi.fn(() =>
-      Promise.resolve({
+    vi.fn((url: string) => {
+      if (url.includes("/locations/search")) {
+        return Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve([mockPickupLocation, mockDeliveryLocation]),
+        });
+      }
+      if (url.includes("/locations/loc-1")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(mockPickupLocation),
+        });
+      }
+      if (url.includes("/locations/loc-2")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(mockDeliveryLocation),
+        });
+      }
+      return Promise.resolve({
         ok: true,
         status: 200,
         statusText: "OK",
         json: () => Promise.resolve(mockContract),
-      }),
-    ),
+      });
+    }),
   );
 });
 
@@ -205,6 +247,107 @@ describe("ContractEditPage", () => {
 
     await userEvent.click(screen.getByText("Hauling Orders"));
     expect(screen.getByText("Commodity is required")).toBeInTheDocument();
+  });
+
+  it("shows resolved location names for existing hauling orders", async () => {
+    renderPage();
+    await screen.findByText("Edit Contract");
+    await userEvent.click(screen.getByText("Hauling Orders"));
+
+    // Location names should be resolved from getLocation calls
+    expect(
+      await screen.findByText("Port Olisar (station)"),
+    ).toBeInTheDocument();
+    expect(await screen.findByText("Area18 (city)")).toBeInTheDocument();
+  });
+
+  it("can search and select a pickup location", async () => {
+    renderPage();
+    await screen.findByText("Edit Contract");
+    await userEvent.click(screen.getByText("Hauling Orders"));
+
+    // Wait for location names to resolve, then clear pickup
+    await screen.findByText("Port Olisar (station)");
+    const clearButtons = screen.getAllByLabelText("Clear selection");
+    await userEvent.click(clearButtons[0]);
+
+    // Type in the search input
+    const searchInput = screen.getByPlaceholderText(
+      "Search pickup location…",
+    );
+    await userEvent.type(searchInput, "Port");
+
+    // Wait for search results (300ms debounce + async)
+    const option = await screen.findByRole("option", {
+      name: /Port Olisar/,
+    });
+    await userEvent.click(option);
+
+    // Should show the selected location name
+    expect(screen.getByText("Port Olisar (station)")).toBeInTheDocument();
+  });
+
+  it("can search and select a delivery location", async () => {
+    renderPage();
+    await screen.findByText("Edit Contract");
+    await userEvent.click(screen.getByText("Hauling Orders"));
+
+    // Wait for location names to resolve, then clear delivery
+    await screen.findByText("Area18 (city)");
+    const clearButtons = screen.getAllByLabelText("Clear selection");
+    await userEvent.click(clearButtons[1]);
+
+    // Type in the search input
+    const searchInput = screen.getByPlaceholderText(
+      "Search delivery location…",
+    );
+    await userEvent.type(searchInput, "Area");
+
+    // Wait for search results
+    const option = await screen.findByRole("option", {
+      name: /Area18/,
+    });
+    await userEvent.click(option);
+
+    // Should show the selected location name
+    expect(screen.getByText("Area18 (city)")).toBeInTheDocument();
+  });
+
+  it("can clear a selected location", async () => {
+    renderPage();
+    await screen.findByText("Edit Contract");
+    await userEvent.click(screen.getByText("Hauling Orders"));
+
+    // Wait for location names to resolve
+    await screen.findByText("Port Olisar (station)");
+    const clearButtons = screen.getAllByLabelText("Clear selection");
+    await userEvent.click(clearButtons[0]);
+
+    // Search input should appear
+    expect(
+      screen.getByPlaceholderText("Search pickup location…"),
+    ).toBeInTheDocument();
+  });
+
+  it("shows location validation error when location is cleared and saved", async () => {
+    renderPage();
+    await screen.findByText("Edit Contract");
+    await userEvent.click(screen.getByText("Hauling Orders"));
+
+    // Wait for location names to resolve, then clear pickup
+    await screen.findByText("Port Olisar (station)");
+    const clearButtons = screen.getAllByLabelText("Clear selection");
+    await userEvent.click(clearButtons[0]);
+
+    // Switch to General and save
+    await userEvent.click(screen.getByText("General"));
+    await userEvent.click(screen.getByText("Save"));
+
+    // Switch back to see the error
+    await userEvent.click(screen.getByText("Hauling Orders"));
+    expect(
+      screen.getByText("Pickup location is required"),
+    ).toBeInTheDocument();
   });
 
   // -- Requirements Tab --
