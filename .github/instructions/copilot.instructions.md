@@ -58,9 +58,11 @@ The issue title and PR title must be **identical**. PR body must include `Fixes 
 
 ## Tooling
 
-| Tool | Command |
-|------|---------|
+| Action | Command |
+|--------|--------|
+| Install deps | `npm install` |
 | Dev server | `npm run dev` |
+| Run in Docker | `uv run hhh up` (from monorepo root) |
 | Run tests | `npm test` |
 | Lint | `npm run lint` |
 | Type check | `npx tsc --noEmit` |
