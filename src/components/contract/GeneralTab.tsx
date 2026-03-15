@@ -45,20 +45,20 @@ export default function GeneralTab({ form, errors, onChange }: GeneralTabProps) 
         )}
       </div>
 
-      {/* Action */}
+      {/* Faction */}
       <div>
-        <label htmlFor="action" className="block text-sm font-medium mb-1">
-          Action
+        <label htmlFor="faction" className="block text-sm font-medium mb-1">
+          Faction
         </label>
         <input
-          id="action"
+          id="faction"
           type="text"
-          value={form.action}
-          onChange={(e) => onChange("action", e.target.value)}
+          value={form.faction}
+          onChange={(e) => onChange("faction", e.target.value)}
           className="w-full rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)] focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)]"
         />
-        {errors.action && (
-          <p className="mt-1 text-xs text-[var(--color-danger)]">{errors.action}</p>
+        {errors.faction && (
+          <p className="mt-1 text-xs text-[var(--color-danger)]">{errors.faction}</p>
         )}
       </div>
 
