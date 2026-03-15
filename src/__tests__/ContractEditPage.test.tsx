@@ -332,6 +332,7 @@ describe("ContractEditPage", () => {
     // Wait for location names to resolve, then clear pickup
     await screen.findByText("Port Olisar (station)");
     const clearButtons = screen.getAllByLabelText("Clear selection");
+    // Clear buttons order: [0]=commodity, [1]=pickup, [2]=delivery
     await userEvent.click(clearButtons[1]);
 
     // Type in the search input
@@ -358,6 +359,7 @@ describe("ContractEditPage", () => {
     // Wait for location names to resolve, then clear delivery
     await screen.findByText("Area18 (city)");
     const clearButtons = screen.getAllByLabelText("Clear selection");
+    // Clear buttons order: [0]=commodity, [1]=pickup, [2]=delivery
     await userEvent.click(clearButtons[2]);
 
     // Type in the search input
@@ -384,6 +386,7 @@ describe("ContractEditPage", () => {
     // Wait for location names to resolve
     await screen.findByText("Port Olisar (station)");
     const clearButtons = screen.getAllByLabelText("Clear selection");
+    // Clear buttons order: [0]=commodity, [1]=pickup, [2]=delivery
     await userEvent.click(clearButtons[1]);
 
     // Search input should appear
@@ -400,6 +403,7 @@ describe("ContractEditPage", () => {
     // Wait for location names to resolve, then clear pickup
     await screen.findByText("Port Olisar (station)");
     const clearButtons = screen.getAllByLabelText("Clear selection");
+    // Clear buttons order: [0]=commodity, [1]=pickup, [2]=delivery
     await userEvent.click(clearButtons[1]);
 
     // Switch to General and save
