@@ -10,6 +10,7 @@ import {
   searchLocations,
 } from "@/api/locations";
 import { Button } from "@/components/ui/button";
+import SystemSelector from "@/components/location/SystemSelector";
 
 const LOCATION_TYPES = [
   "system",
@@ -274,6 +275,16 @@ export default function LocationEditPage() {
             ))}
           </select>
         </div>
+
+        {/* Star System Selector */}
+        {form.location_type !== "system" && (
+          <SystemSelector
+            value={form.parent_id}
+            onChange={(systemId) =>
+              handleFieldChange("parent_id", systemId)
+            }
+          />
+        )}
 
         {/* Parent Location */}
         <div className="relative">
