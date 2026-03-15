@@ -66,3 +66,8 @@ The issue title and PR title must be **identical**. PR body must include `Fixes 
 | Run tests | `npm test` |
 | Lint | `npm run lint` |
 | Type check | `npx tsc --noEmit` |
+
+## Maintenance Rules
+
+- **Keep the README up to date.** When you add, remove, or change commands, environment variables, API endpoints, or architecture — update `README.md`. The README is the source of truth for developers.
+- **Keep the monorepo CLI service registry up to date.** When adding or removing a service, update `SERVICES`, `FRONTENDS`, `COMPOSE_SERVICE_MAP`, and `SERVICE_ALIASES` in `hhh-main/hhh_cli/__init__.py`, plus the `docker-compose.yml` entry.

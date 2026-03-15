@@ -19,6 +19,14 @@ npm install
 npm run dev
 ```
 
+## Run in Docker (full stack)
+
+From the monorepo root (`hhh-main`):
+
+```bash
+uv run hhh up
+```
+
 ## React Compiler
 
 The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
