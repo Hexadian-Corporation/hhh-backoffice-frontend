@@ -25,3 +25,7 @@ dist-ssr
 
 # Coverage
 coverage
+
+# VS Code Copilot local instruction files (only track copilot.instructions.md)
+.github/instructions/*
+!.github/instructions/copilot.instructions.md
