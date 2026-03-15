@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { Plus, CheckCircle, Play, XCircle, Clock } from "lucide-react";
+import { Plus, CheckCircle, AlertCircle, Play, XCircle, Clock } from "lucide-react";
 import type { Contract } from "@/types/contract";
 import { listContracts, updateContract } from "@/api/contracts";
 import { Button } from "@/components/ui/button";
@@ -180,7 +180,11 @@ export default function ContractListPage() {
               : "bg-[var(--color-danger)]/10 text-[var(--color-danger)] border-[var(--color-danger)]/20"
           }`}
         >
-          <CheckCircle className="h-4 w-4" />
+          {toast.type === "success" ? (
+            <CheckCircle className="h-4 w-4" />
+          ) : (
+            <AlertCircle className="h-4 w-4" />
+          )}
           {toast.message}
         </div>
       )}
