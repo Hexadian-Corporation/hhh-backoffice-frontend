@@ -12,7 +12,7 @@ const mockContract: Contract = {
   id: '1',
   title: 'Test Haul',
   description: 'Move cargo',
-  action: 'haul',
+  faction: 'haul',
   hauling_orders: [
     {
       commodity: 'Laranite',

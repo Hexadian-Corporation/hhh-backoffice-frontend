@@ -23,7 +23,7 @@ const mockContract: Contract = {
   id: "42",
   title: "Test Haul",
   description: "Move cargo from A to B",
-  action: "haul",
+  faction: "haul",
   hauling_orders: [
     {
       commodity_id: "comm-1",
@@ -179,7 +179,7 @@ describe("ContractEditPage", () => {
     expect(screen.getByLabelText("Description")).toHaveValue(
       "Move cargo from A to B",
     );
-    expect(screen.getByLabelText("Action")).toHaveValue("haul");
+    expect(screen.getByLabelText("Faction")).toHaveValue("haul");
     expect(screen.getByLabelText("Status")).toHaveValue("draft");
     expect(screen.getByLabelText("Reward (UEC)")).toHaveValue(50000);
     expect(screen.getByLabelText("Collateral (UEC)")).toHaveValue(10000);
@@ -473,13 +473,13 @@ describe("ContractEditPage", () => {
     // Clear required fields
     await userEvent.clear(screen.getByLabelText("Title"));
     await userEvent.clear(screen.getByLabelText("Description"));
-    await userEvent.clear(screen.getByLabelText("Action"));
+    await userEvent.clear(screen.getByLabelText("Faction"));
 
     await userEvent.click(screen.getByText("Save"));
 
     expect(screen.getByText("Title is required")).toBeInTheDocument();
     expect(screen.getByText("Description is required")).toBeInTheDocument();
-    expect(screen.getByText("Action is required")).toBeInTheDocument();
+    expect(screen.getByText("Faction is required")).toBeInTheDocument();
   });
 
   it("shows deadline validation error when deadline is empty", async () => {

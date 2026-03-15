@@ -20,7 +20,7 @@ const TABS: { key: TabKey; label: string }[] = [
 const INITIAL_FORM: ContractCreate = {
   title: "",
   description: "",
-  action: "",
+  faction: "",
   status: "draft",
   hauling_orders: [
     {
@@ -47,7 +47,7 @@ function validate(form: ContractCreate): Record<string, string> {
 
   if (!form.title.trim()) errors.title = "Title is required";
   if (!form.description.trim()) errors.description = "Description is required";
-  if (!form.action.trim()) errors.action = "Action is required";
+  if (!form.faction.trim()) errors.faction = "Faction is required";
   if (form.reward_uec < 0) errors.reward_uec = "Reward must be ≥ 0";
   if (form.collateral_uec < 0)
     errors.collateral_uec = "Collateral must be ≥ 0";
@@ -99,7 +99,7 @@ export default function ContractEditPage() {
         setForm({
           title: contract.title,
           description: contract.description,
-          action: contract.action,
+          faction: contract.faction,
           status: contract.status,
           hauling_orders: contract.hauling_orders,
           reward_uec: contract.reward_uec,
