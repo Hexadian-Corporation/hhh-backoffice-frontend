@@ -28,13 +28,13 @@ import { listCommodities } from "@/api/commodities"
 
 const mockContracts: Contract[] = [
   {
-    id: "1", title: "Haul A", description: "", action: "haul",
+    id: "1", title: "Haul A", description: "", faction: "haul",
     hauling_orders: [], reward_uec: 1000, collateral_uec: 500,
     deadline: "2026-06-01T00:00:00Z", requirements: { min_reputation: 0, required_ship_tags: [], max_crew_size: null },
     status: "draft", created_at: "2026-01-01T00:00:00Z", updated_at: "2026-01-01T00:00:00Z",
   },
   {
-    id: "2", title: "Haul B", description: "", action: "haul",
+    id: "2", title: "Haul B", description: "", faction: "haul",
     hauling_orders: [], reward_uec: 2000, collateral_uec: 1000,
     deadline: "2026-06-01T00:00:00Z", requirements: { min_reputation: 0, required_ship_tags: [], max_crew_size: null },
     status: "active", created_at: "2026-01-01T00:00:00Z", updated_at: "2026-01-01T00:00:00Z",
