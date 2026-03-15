@@ -17,7 +17,7 @@ export interface Contract {
   id: string;
   title: string;
   description: string;
-  action: string;
+  faction: string;
   hauling_orders: HaulingOrder[];
   reward_uec: number;
   collateral_uec: number;
