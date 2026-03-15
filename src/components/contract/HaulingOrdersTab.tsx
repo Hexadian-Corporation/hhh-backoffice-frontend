@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { HaulingOrder } from "@/types/contract";
 import { Button } from "@/components/ui/button";
 import Autocomplete from "@/components/ui/Autocomplete";
@@ -28,6 +28,14 @@ export default function HaulingOrdersTab({
 }: HaulingOrdersTabProps) {
   const [locationNames, setLocationNames] = useState<Record<string, string>>(
     {},
+  );
+
+  const locationIdKey = useMemo(
+    () =>
+      orders
+        .map((o) => `${o.pickup_location_id}:${o.delivery_location_id}`)
+        .join(","),
+    [orders],
   );
 
   useEffect(() => {
@@ -65,7 +73,7 @@ export default function HaulingOrdersTab({
     };
     // Only resolve on mount / when order IDs change
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [orders.map((o) => `${o.pickup_location_id}:${o.delivery_location_id}`).join(",")]);
+  }, [locationIdKey]);
 
   const handleLocationSearch = useCallback(
     async (query: string): Promise<AutocompleteOption[]> => {
