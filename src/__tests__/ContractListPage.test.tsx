@@ -5,35 +5,40 @@ import { vi, type Mock } from "vitest";
 import ContractListPage from "@/pages/ContractListPage";
 import type { Contract } from "@/types/contract";
 
-const mockContracts: Contract[] = [
-  {
-    id: "con-1",
-    title: "Laranite Haul",
-    description: "Transport laranite",
-    faction: "United Empire of Earth",
-    hauling_orders: [
-      {
-        commodity_id: "comm-1",
-        scu_min: 10,
-        scu_max: 50,
-        max_container_scu: 32,
-        pickup_location_id: "loc-1",
-        delivery_location_id: "loc-2",
-      },
-    ],
-    reward_uec: 25000,
-    collateral_uec: 5000,
-    deadline: "2950-06-15T00:00:00Z",
-    requirements: {
-      min_reputation: 2,
-      required_ship_tags: [],
-      max_crew_size: null,
+const makeContract = (
+  overrides: Partial<Contract> = {},
+): Contract => ({
+  id: "con-1",
+  title: "Laranite Haul",
+  description: "Transport laranite",
+  faction: "United Empire of Earth",
+  hauling_orders: [
+    {
+      commodity_id: "comm-1",
+      scu_min: 10,
+      scu_max: 50,
+      max_container_scu: 32,
+      pickup_location_id: "loc-1",
+      delivery_location_id: "loc-2",
     },
-    status: "active",
-    created_at: "2950-01-01T00:00:00Z",
-    updated_at: "2950-01-01T00:00:00Z",
+  ],
+  reward_uec: 25000,
+  collateral_uec: 5000,
+  deadline: "2950-06-15T00:00:00Z",
+  requirements: {
+    min_reputation: 2,
+    required_ship_tags: [],
+    max_crew_size: null,
   },
-  {
+  status: "active",
+  created_at: "2950-01-01T00:00:00Z",
+  updated_at: "2950-01-01T00:00:00Z",
+  ...overrides,
+});
+
+const mockContracts: Contract[] = [
+  makeContract(),
+  makeContract({
     id: "con-2",
     title: "Titanium Express",
     description: "Deliver titanium quickly",
@@ -67,7 +72,7 @@ const mockContracts: Contract[] = [
     status: "draft",
     created_at: "2950-01-02T00:00:00Z",
     updated_at: "2950-01-02T00:00:00Z",
-  },
+  }),
 ];
 
 function renderPage() {
@@ -254,5 +259,196 @@ describe("ContractListPage", () => {
     expect(
       await screen.findByText("Edit Contract Page"),
     ).toBeInTheDocument();
+  });
+
+  // -- Status action buttons --
+  it("shows Activate and Cancel buttons on draft contracts", async () => {
+    renderPage();
+    await screen.findByText("Contratos");
+
+    const draftCard = screen.getByText("Titanium Express").closest("[role='article']")!;
+    expect(within(draftCard).getByText("Activate")).toBeInTheDocument();
+    expect(within(draftCard).getByText("Cancel")).toBeInTheDocument();
+  });
+
+  it("shows Expire and Cancel buttons on active contracts", async () => {
+    renderPage();
+    await screen.findByText("Contratos");
+
+    const activeCard = screen.getByText("Laranite Haul").closest("[role='article']")!;
+    expect(within(activeCard).getByText("Expire")).toBeInTheDocument();
+    expect(within(activeCard).getByText("Cancel")).toBeInTheDocument();
+  });
+
+  it("does not show action buttons on expired contracts", async () => {
+    (fetch as Mock).mockResolvedValueOnce({
+      ok: true,
+      json: () =>
+        Promise.resolve([makeContract({ status: "expired", title: "Old Contract" })]),
+    });
+
+    renderPage();
+    await screen.findByText("Contratos");
+
+    const card = screen.getByText("Old Contract").closest("[role='article']")!;
+    expect(within(card).queryByText("Activate")).not.toBeInTheDocument();
+    expect(within(card).queryByText("Cancel")).not.toBeInTheDocument();
+    expect(within(card).queryByText("Expire")).not.toBeInTheDocument();
+  });
+
+  it("does not show action buttons on cancelled contracts", async () => {
+    (fetch as Mock).mockResolvedValueOnce({
+      ok: true,
+      json: () =>
+        Promise.resolve([
+          makeContract({ status: "cancelled", title: "Voided Contract" }),
+        ]),
+    });
+
+    renderPage();
+    await screen.findByText("Contratos");
+
+    const card = screen.getByText("Voided Contract").closest("[role='article']")!;
+    expect(within(card).queryByText("Activate")).not.toBeInTheDocument();
+    expect(within(card).queryByText("Cancel")).not.toBeInTheDocument();
+    expect(within(card).queryByText("Expire")).not.toBeInTheDocument();
+  });
+
+  // -- Confirmation dialog --
+  it("shows confirmation dialog when clicking Activate", async () => {
+    renderPage();
+    await screen.findByText("Contratos");
+
+    const draftCard = screen.getByText("Titanium Express").closest("[role='article']")!;
+    await userEvent.click(within(draftCard).getByText("Activate"));
+
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    expect(
+      screen.getByText("Are you sure you want to activate this contract?"),
+    ).toBeInTheDocument();
+  });
+
+  it("closes confirmation dialog when clicking Cancel in dialog", async () => {
+    renderPage();
+    await screen.findByText("Contratos");
+
+    const draftCard = screen.getByText("Titanium Express").closest("[role='article']")!;
+    await userEvent.click(within(draftCard).getByText("Activate"));
+
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+
+    // Click Cancel in the dialog (not the card Cancel button)
+    const dialog = screen.getByRole("dialog");
+    await userEvent.click(within(dialog).getByText("Cancel"));
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("shows destructive confirmation for Cancel action", async () => {
+    renderPage();
+    await screen.findByText("Contratos");
+
+    const draftCard = screen.getByText("Titanium Express").closest("[role='article']")!;
+    await userEvent.click(within(draftCard).getByText("Cancel"));
+
+    expect(
+      screen.getByText(
+        "Are you sure you want to cancel this contract? This cannot be undone.",
+      ),
+    ).toBeInTheDocument();
+  });
+
+  // -- Status change API call --
+  it("calls updateContract and shows success toast on Activate confirm", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+
+    const updatedContract = makeContract({
+      id: "con-2",
+      title: "Titanium Express",
+      status: "active",
+    });
+
+    (fetch as Mock)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(mockContracts),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(updatedContract),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve([
+            mockContracts[0],
+            { ...mockContracts[1], status: "active" },
+          ]),
+      });
+
+    renderPage();
+    await screen.findByText("Contratos");
+
+    const draftCard = screen.getByText("Titanium Express").closest("[role='article']")!;
+    await userEvent.click(within(draftCard).getByText("Activate"));
+
+    const dialog = screen.getByRole("dialog");
+    await userEvent.click(within(dialog).getByText("Activate"));
+
+    expect(
+      await screen.findByText("Contract active successfully"),
+    ).toBeInTheDocument();
+
+    // Verify the PUT call was made with correct payload
+    const putCall = (fetch as Mock).mock.calls.find(
+      (call: string[]) =>
+        typeof call[0] === "string" && call[0].includes("/contracts/con-2"),
+    );
+    expect(putCall).toBeDefined();
+    expect(JSON.parse(putCall![1].body)).toEqual({ status: "active" });
+
+    vi.useRealTimers();
+  });
+
+  it("shows error toast when status change fails", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+
+    (fetch as Mock)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(mockContracts),
+      })
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+        statusText: "Internal Server Error",
+      });
+
+    renderPage();
+    await screen.findByText("Contratos");
+
+    const activeCard = screen.getByText("Laranite Haul").closest("[role='article']")!;
+    await userEvent.click(within(activeCard).getByText("Expire"));
+
+    const dialog = screen.getByRole("dialog");
+    await userEvent.click(within(dialog).getByText("Expire"));
+
+    expect(
+      await screen.findByText("Failed to update contract status"),
+    ).toBeInTheDocument();
+
+    vi.useRealTimers();
+  });
+
+  it("does not navigate when clicking action buttons", async () => {
+    renderPage();
+    await screen.findByText("Contratos");
+
+    const draftCard = screen.getByText("Titanium Express").closest("[role='article']")!;
+    await userEvent.click(within(draftCard).getByText("Activate"));
+
+    // Should still be on the list page, not the edit page
+    expect(screen.getByText("Contratos")).toBeInTheDocument();
+    expect(screen.queryByText("Edit Contract Page")).not.toBeInTheDocument();
   });
 });

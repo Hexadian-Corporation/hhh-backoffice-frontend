@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { Plus } from "lucide-react";
+import { Plus, CheckCircle, Play, XCircle, Clock } from "lucide-react";
 import type { Contract } from "@/types/contract";
-import { listContracts } from "@/api/contracts";
+import { listContracts, updateContract } from "@/api/contracts";
 import { Button } from "@/components/ui/button";
+import ConfirmationDialog from "@/components/ui/ConfirmationDialog";
 
 const STATUS_OPTIONS = ["all", "draft", "active", "expired", "cancelled"] as const;
 type StatusFilter = (typeof STATUS_OPTIONS)[number];
@@ -13,6 +14,52 @@ const STATUS_COLORS: Record<Contract["status"], string> = {
   active: "var(--color-accent)",
   expired: "var(--color-warning)",
   cancelled: "var(--color-danger)",
+};
+
+interface StatusAction {
+  label: string;
+  target: Contract["status"];
+  icon: React.ReactNode;
+  variant: "default" | "destructive";
+  message: string;
+}
+
+const STATUS_ACTIONS: Record<string, StatusAction[]> = {
+  draft: [
+    {
+      label: "Activate",
+      target: "active",
+      icon: <Play className="h-3.5 w-3.5" />,
+      variant: "default",
+      message: "Are you sure you want to activate this contract?",
+    },
+    {
+      label: "Cancel",
+      target: "cancelled",
+      icon: <XCircle className="h-3.5 w-3.5" />,
+      variant: "destructive",
+      message:
+        "Are you sure you want to cancel this contract? This cannot be undone.",
+    },
+  ],
+  active: [
+    {
+      label: "Expire",
+      target: "expired",
+      icon: <Clock className="h-3.5 w-3.5" />,
+      variant: "destructive",
+      message:
+        "Are you sure you want to expire this contract? This cannot be undone.",
+    },
+    {
+      label: "Cancel",
+      target: "cancelled",
+      icon: <XCircle className="h-3.5 w-3.5" />,
+      variant: "destructive",
+      message:
+        "Are you sure you want to cancel this contract? This cannot be undone.",
+    },
+  ],
 };
 
 function formatDeadline(iso: string): string {
@@ -29,6 +76,14 @@ export default function ContractListPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
+  const [pendingAction, setPendingAction] = useState<{
+    contractId: string;
+    action: StatusAction;
+  } | null>(null);
 
   const [retryCount, setRetryCount] = useState(0);
 
@@ -50,6 +105,28 @@ export default function ContractListPage() {
       cancelled = true;
     };
   }, [retryCount]);
+
+  async function handleStatusChange() {
+    if (!pendingAction) return;
+
+    const { contractId, action } = pendingAction;
+    setPendingAction(null);
+
+    try {
+      await updateContract(contractId, { status: action.target });
+      setToast({
+        message: `Contract ${action.target} successfully`,
+        type: "success",
+      });
+      setRetryCount((c) => c + 1);
+    } catch {
+      setToast({
+        message: `Failed to update contract status`,
+        type: "error",
+      });
+    }
+    setTimeout(() => setToast(null), 3000);
+  }
 
   const filtered =
     statusFilter === "all"
@@ -93,6 +170,21 @@ export default function ContractListPage() {
 
   return (
     <div className="p-6">
+      {/* Toast */}
+      {toast && (
+        <div
+          role="status"
+          className={`mb-4 flex items-center gap-2 rounded-md px-4 py-2 text-sm border ${
+            toast.type === "success"
+              ? "bg-[var(--color-success)]/10 text-[var(--color-success)] border-[var(--color-success)]/20"
+              : "bg-[var(--color-danger)]/10 text-[var(--color-danger)] border-[var(--color-danger)]/20"
+          }`}
+        >
+          <CheckCircle className="h-4 w-4" />
+          {toast.message}
+        </div>
+      )}
+
       {/* Error banner */}
       {error && (
         <div className="mb-4 rounded-md bg-[var(--color-danger)]/10 px-4 py-2 text-sm text-[var(--color-danger)] border border-[var(--color-danger)]/20">
@@ -180,10 +272,46 @@ export default function ContractListPage() {
                 {contract.hauling_orders.length} hauling order
                 {contract.hauling_orders.length !== 1 ? "s" : ""}
               </p>
+
+              {/* Status action buttons */}
+              {STATUS_ACTIONS[contract.status] && (
+                <div
+                  className="flex gap-2 mt-3 pt-3 border-t border-[var(--color-border)]"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {STATUS_ACTIONS[contract.status].map((action) => (
+                    <Button
+                      key={action.target}
+                      size="sm"
+                      variant={action.variant}
+                      onClick={() =>
+                        setPendingAction({
+                          contractId: contract.id,
+                          action,
+                        })
+                      }
+                    >
+                      {action.icon}
+                      {action.label}
+                    </Button>
+                  ))}
+                </div>
+              )}
             </div>
           ))}
         </div>
       )}
+
+      {/* Confirmation dialog */}
+      <ConfirmationDialog
+        open={pendingAction !== null}
+        title="Confirm Status Change"
+        message={pendingAction?.action.message ?? ""}
+        confirmLabel={pendingAction?.action.label ?? "Confirm"}
+        confirmVariant={pendingAction?.action.variant ?? "default"}
+        onConfirm={handleStatusChange}
+        onCancel={() => setPendingAction(null)}
+      />
     </div>
   );
 }
