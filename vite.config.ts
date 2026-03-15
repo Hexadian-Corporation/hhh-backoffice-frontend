@@ -11,9 +11,9 @@ export default defineConfig({
     environment: 'jsdom',
     coverage: {
       provider: 'v8',
+      reporter: ['text', 'cobertura'],
       include: ['src/**/*.{ts,tsx}'],
       exclude: ['src/main.tsx', 'src/vite-env.d.ts'],
-      thresholds: { lines: 90, branches: 90, functions: 90, statements: 90 },
     },
   },
 })

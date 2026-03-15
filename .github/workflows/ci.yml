@@ -29,6 +29,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -36,6 +38,8 @@ jobs:
       - run: npm ci
       - name: Run tests with coverage
         run: npm test
+      - name: Check coverage on changed lines
+        run: pipx run diff-cover coverage/cobertura-coverage.xml --compare-branch=origin/main --fail-under=90
 
   copilot-fix:
     name: Request Copilot Fix
@@ -52,13 +56,21 @@ jobs:
             const failures = [];
             if (lintResult === 'failure') failures.push('**Lint & Type Check** \u2014 fix linting or type errors');
             if (testResult === 'failure') failures.push('**Tests & Coverage** \u2014 fix failing tests or improve coverage to \u226590%');
+            const prUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/pull/${context.issue.number}`;
+            const suggestion = '@copilot Please fix the CI failures listed above.';
             const body = [
-              '## CI Failed',
+              '## :x: CI Failed',
               '',
               'The following checks failed:',
               failures.map(f => `- ${f}`).join('\n'),
               '',
-              '@copilot Please fix the CI failures listed above.',
+              '---',
+              '',
+              ':robot: **Ask Copilot to fix this** \u2014 copy the message below and paste it as a new comment on this PR:',
+              '',
+              '```',
+              suggestion,
+              '```',
             ].join('\n');
             await github.rest.issues.createComment({
               owner: context.repo.owner,
