@@ -1,0 +1,103 @@
+import { render, screen, waitFor, act } from "@testing-library/react";
+import { vi, type Mock } from "vitest";
+import HealthPanel from "@/components/dashboard/HealthPanel";
+import type { ServiceConfig, ServiceHealth } from "@/api/health";
+
+vi.mock("@/api/health", async () => {
+  const actual = await vi.importActual("@/api/health");
+  return {
+    ...actual,
+    checkAllServices: vi.fn(),
+  };
+});
+
+import { checkAllServices } from "@/api/health";
+
+const testServices: ServiceConfig[] = [
+  { name: "Contracts", url: "http://localhost:8001" },
+  { name: "Ships", url: "http://localhost:8002" },
+];
+
+const healthyResults: ServiceHealth[] = [
+  { name: "Contracts", url: "http://localhost:8001", status: "healthy", latencyMs: 15 },
+  { name: "Ships", url: "http://localhost:8002", status: "healthy", latencyMs: 22 },
+];
+
+const downResults: ServiceHealth[] = [
+  { name: "Contracts", url: "http://localhost:8001", status: "down", latencyMs: null },
+  { name: "Ships", url: "http://localhost:8002", status: "down", latencyMs: null },
+];
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
+
+describe("HealthPanel", () => {
+  it("renders service names and ports", () => {
+    (checkAllServices as Mock).mockReturnValue(new Promise(() => {}));
+
+    render(<HealthPanel services={testServices} />);
+
+    expect(screen.getByText("System Health")).toBeInTheDocument();
+    expect(screen.getByText("Contracts")).toBeInTheDocument();
+    expect(screen.getByText("Ships")).toBeInTheDocument();
+    expect(screen.getByText(":8001")).toBeInTheDocument();
+    expect(screen.getByText(":8002")).toBeInTheDocument();
+  });
+
+  it("shows initial checking state then healthy", async () => {
+    (checkAllServices as Mock).mockResolvedValue(healthyResults);
+
+    render(<HealthPanel services={testServices} />);
+
+    // Initially "Checking…" shown
+    expect(screen.getAllByText("Checking…")).toHaveLength(2);
+
+    // After fetch resolves, should show "Healthy"
+    await waitFor(() => {
+      expect(screen.getAllByText("Healthy")).toHaveLength(2);
+    });
+  });
+
+  it("shows unreachable when services are down", async () => {
+    (checkAllServices as Mock).mockResolvedValue(downResults);
+
+    render(<HealthPanel services={testServices} />);
+
+    await waitFor(() => {
+      expect(screen.getAllByText("Unreachable")).toHaveLength(2);
+    });
+  });
+
+  it("shows latency for healthy services", async () => {
+    (checkAllServices as Mock).mockResolvedValue(healthyResults);
+
+    render(<HealthPanel services={testServices} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("15ms")).toBeInTheDocument();
+      expect(screen.getByText("22ms")).toBeInTheDocument();
+    });
+  });
+
+  it("auto-refreshes every 30 seconds", async () => {
+    vi.useFakeTimers();
+    (checkAllServices as Mock).mockResolvedValue(healthyResults);
+
+    render(<HealthPanel services={testServices} />);
+
+    // Initial call
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    expect(checkAllServices).toHaveBeenCalledTimes(1);
+
+    // Advance timer by 30s to trigger refresh
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(30_000);
+    });
+    expect(checkAllServices).toHaveBeenCalledTimes(2);
+
+    vi.useRealTimers();
+  });
+});
