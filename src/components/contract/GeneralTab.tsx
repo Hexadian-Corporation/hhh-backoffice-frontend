@@ -4,11 +4,12 @@ interface GeneralTabProps {
   form: ContractCreate;
   errors: Record<string, string>;
   onChange: <K extends keyof ContractCreate>(key: K, value: ContractCreate[K]) => void;
+  statusDisabled?: boolean;
 }
 
 const STATUS_OPTIONS = ["draft", "active", "expired", "cancelled"] as const;
 
-export default function GeneralTab({ form, errors, onChange }: GeneralTabProps) {
+export default function GeneralTab({ form, errors, onChange, statusDisabled }: GeneralTabProps) {
   return (
     <div className="space-y-4">
       {/* Title */}
@@ -70,10 +71,11 @@ export default function GeneralTab({ form, errors, onChange }: GeneralTabProps) 
         <select
           id="status"
           value={form.status}
+          disabled={statusDisabled}
           onChange={(e) =>
             onChange("status", e.target.value as ContractCreate["status"])
           }
-          className="w-full rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)] focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)]"
+          className="w-full rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)] focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {STATUS_OPTIONS.map((s) => (
             <option key={s} value={s}>
