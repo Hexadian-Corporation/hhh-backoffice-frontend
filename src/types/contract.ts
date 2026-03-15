@@ -1,5 +1,5 @@
 export interface HaulingOrder {
-  commodity: string;
+  commodity_id: string;
   scu_min: number;
   scu_max: number;
   max_container_scu: number;

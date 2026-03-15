@@ -5,6 +5,19 @@ import { vi, type Mock } from "vitest";
 import ContractEditPage from "@/pages/ContractEditPage";
 import type { Contract } from "@/types/contract";
 import type { Location } from "@/types/location";
+import type { Commodity } from "@/types/commodity";
+
+const mockCommodity: Commodity = {
+  id: "comm-1",
+  name: "Laranite",
+  code: "LARA",
+};
+
+const mockCommodity2: Commodity = {
+  id: "comm-2",
+  name: "Titanium",
+  code: "TITA",
+};
 
 const mockContract: Contract = {
   id: "42",
@@ -13,7 +26,7 @@ const mockContract: Contract = {
   action: "haul",
   hauling_orders: [
     {
-      commodity: "Laranite",
+      commodity_id: "comm-1",
       scu_min: 50,
       scu_max: 100,
       max_container_scu: 32,
@@ -71,6 +84,19 @@ beforeEach(() => {
   vi.stubGlobal(
     "fetch",
     vi.fn((url: string) => {
+      if (url.includes("/commodities/search")) {
+        return Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve([mockCommodity, mockCommodity2]),
+        });
+      }
+      if (url.includes("/commodities/comm-1")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(mockCommodity),
+        });
+      }
       if (url.includes("/locations/search")) {
         return Promise.resolve({
           ok: true,
@@ -183,36 +209,29 @@ describe("ContractEditPage", () => {
     await screen.findByText("Edit Contract");
     await userEvent.click(screen.getByText("Hauling Orders"));
 
-    // Existing order
-    expect(screen.getByLabelText("Commodity")).toHaveValue("Laranite");
+    // Existing order shows resolved commodity name
+    expect(await screen.findByText("Laranite (LARA)")).toBeInTheDocument();
 
     // Add order
     await userEvent.click(screen.getByText("Add Order"));
-    const commodityInputs = screen.getAllByRole("textbox", {
-      name: /commodity/i,
-    });
-    expect(commodityInputs).toHaveLength(2);
+    const commoditySearchInputs = screen.getAllByPlaceholderText(
+      "Search commodity…",
+    );
+    // New order has an empty commodity autocomplete (search input visible)
+    expect(commoditySearchInputs).toHaveLength(1);
 
     // Remove order 2
     const removeButtons = screen.getAllByRole("button", {
       name: /remove order/i,
     });
     await userEvent.click(removeButtons[1]);
-    expect(
-      screen.getAllByRole("textbox", { name: /commodity/i }),
-    ).toHaveLength(1);
+    expect(screen.queryByPlaceholderText("Search commodity…")).not.toBeInTheDocument();
   });
 
   it("can edit hauling order fields", async () => {
     renderPage();
     await screen.findByText("Edit Contract");
     await userEvent.click(screen.getByText("Hauling Orders"));
-
-    // Edit commodity
-    const commodityInput = screen.getByLabelText("Commodity");
-    await userEvent.clear(commodityInput);
-    await userEvent.type(commodityInput, "Titanium");
-    expect(commodityInput).toHaveValue("Titanium");
 
     // Edit SCU Min
     const scuMinInput = screen.getByLabelText("SCU Min");
@@ -233,13 +252,56 @@ describe("ContractEditPage", () => {
     expect(maxContainerInput).toHaveValue(64);
   });
 
+  it("can search and select a commodity", async () => {
+    renderPage();
+    await screen.findByText("Edit Contract");
+    await userEvent.click(screen.getByText("Hauling Orders"));
+
+    // Wait for commodity name to resolve, then clear commodity
+    await screen.findByText("Laranite (LARA)");
+    const clearButtons = screen.getAllByLabelText("Clear selection");
+    // Commodity clear button is the first one
+    await userEvent.click(clearButtons[0]);
+
+    // Type in the commodity search input
+    const searchInput = screen.getByPlaceholderText("Search commodity…");
+    await userEvent.type(searchInput, "Titan");
+
+    // Wait for search results (300ms debounce + async)
+    const option = await screen.findByRole("option", {
+      name: /Titanium/,
+    });
+    await userEvent.click(option);
+
+    // Should show the selected commodity name
+    expect(screen.getByText("Titanium (TITA)")).toBeInTheDocument();
+  });
+
+  it("can clear a selected commodity", async () => {
+    renderPage();
+    await screen.findByText("Edit Contract");
+    await userEvent.click(screen.getByText("Hauling Orders"));
+
+    // Wait for commodity name to resolve
+    await screen.findByText("Laranite (LARA)");
+    const clearButtons = screen.getAllByLabelText("Clear selection");
+    await userEvent.click(clearButtons[0]);
+
+    // Search input should appear
+    expect(
+      screen.getByPlaceholderText("Search commodity…"),
+    ).toBeInTheDocument();
+  });
+
   it("shows commodity validation error when empty", async () => {
     renderPage();
     await screen.findByText("Edit Contract");
     await userEvent.click(screen.getByText("Hauling Orders"));
 
-    // Clear commodity
-    await userEvent.clear(screen.getByLabelText("Commodity"));
+    // Wait for commodity name to resolve, then clear it
+    await screen.findByText("Laranite (LARA)");
+    const clearButtons = screen.getAllByLabelText("Clear selection");
+    await userEvent.click(clearButtons[0]);
 
     // Save triggers validation
     await userEvent.click(screen.getByText("General"));
@@ -254,7 +316,8 @@ describe("ContractEditPage", () => {
     await screen.findByText("Edit Contract");
     await userEvent.click(screen.getByText("Hauling Orders"));
 
-    // Location names should be resolved from getLocation calls
+    // Commodity and location names should be resolved
+    expect(await screen.findByText("Laranite (LARA)")).toBeInTheDocument();
     expect(
       await screen.findByText("Port Olisar (station)"),
     ).toBeInTheDocument();
@@ -269,7 +332,7 @@ describe("ContractEditPage", () => {
     // Wait for location names to resolve, then clear pickup
     await screen.findByText("Port Olisar (station)");
     const clearButtons = screen.getAllByLabelText("Clear selection");
-    await userEvent.click(clearButtons[0]);
+    await userEvent.click(clearButtons[1]);
 
     // Type in the search input
     const searchInput = screen.getByPlaceholderText(
@@ -295,7 +358,7 @@ describe("ContractEditPage", () => {
     // Wait for location names to resolve, then clear delivery
     await screen.findByText("Area18 (city)");
     const clearButtons = screen.getAllByLabelText("Clear selection");
-    await userEvent.click(clearButtons[1]);
+    await userEvent.click(clearButtons[2]);
 
     // Type in the search input
     const searchInput = screen.getByPlaceholderText(
@@ -321,7 +384,7 @@ describe("ContractEditPage", () => {
     // Wait for location names to resolve
     await screen.findByText("Port Olisar (station)");
     const clearButtons = screen.getAllByLabelText("Clear selection");
-    await userEvent.click(clearButtons[0]);
+    await userEvent.click(clearButtons[1]);
 
     // Search input should appear
     expect(
@@ -337,7 +400,7 @@ describe("ContractEditPage", () => {
     // Wait for location names to resolve, then clear pickup
     await screen.findByText("Port Olisar (station)");
     const clearButtons = screen.getAllByLabelText("Clear selection");
-    await userEvent.click(clearButtons[0]);
+    await userEvent.click(clearButtons[1]);
 
     // Switch to General and save
     await userEvent.click(screen.getByText("General"));

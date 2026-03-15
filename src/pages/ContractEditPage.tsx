@@ -24,7 +24,7 @@ const INITIAL_FORM: ContractCreate = {
   status: "draft",
   hauling_orders: [
     {
-      commodity: "",
+      commodity_id: "",
       scu_min: 0,
       scu_max: 0,
       max_container_scu: 0,
@@ -57,8 +57,8 @@ function validate(form: ContractCreate): Record<string, string> {
     errors.hauling_orders = "At least 1 hauling order is required";
 
   form.hauling_orders.forEach((order, i) => {
-    if (!order.commodity.trim())
-      errors[`hauling_orders.${i}.commodity`] = "Commodity is required";
+    if (!order.commodity_id.trim())
+      errors[`hauling_orders.${i}.commodity_id`] = "Commodity is required";
     if (!order.pickup_location_id.trim())
       errors[`hauling_orders.${i}.pickup_location_id`] =
         "Pickup location is required";
