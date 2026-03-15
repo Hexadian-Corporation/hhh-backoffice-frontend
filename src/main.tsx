@@ -8,6 +8,8 @@ import ContractListPage from './pages/ContractListPage.tsx'
 import ContractEditPage from './pages/ContractEditPage.tsx'
 import LocationListPage from './pages/LocationListPage.tsx'
 import LocationEditPage from './pages/LocationEditPage.tsx'
+import CommodityListPage from './pages/CommodityListPage.tsx'
+import CommodityEditPage from './pages/CommodityEditPage.tsx'
 
 const router = createBrowserRouter([
   {
@@ -20,6 +22,9 @@ const router = createBrowserRouter([
       { path: 'locations', element: <LocationListPage /> },
       { path: 'locations/new', element: <LocationEditPage /> },
       { path: 'locations/:id', element: <LocationEditPage /> },
+      { path: 'commodities', element: <CommodityListPage /> },
+      { path: 'commodities/new', element: <CommodityEditPage /> },
+      { path: 'commodities/:id', element: <CommodityEditPage /> },
     ],
   },
 ])
