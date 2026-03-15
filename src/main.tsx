@@ -5,6 +5,7 @@ import './index.css'
 import RootLayout from './layouts/RootLayout.tsx'
 import DashboardPage from './pages/DashboardPage.tsx'
 import ContractListPage from './pages/ContractListPage.tsx'
+import ContractCreatePage from './pages/ContractCreatePage.tsx'
 import ContractEditPage from './pages/ContractEditPage.tsx'
 import LocationListPage from './pages/LocationListPage.tsx'
 import LocationEditPage from './pages/LocationEditPage.tsx'
@@ -18,7 +19,7 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <DashboardPage /> },
       { path: 'contracts', element: <ContractListPage /> },
-      { path: 'contracts/new', element: <ContractEditPage /> },
+      { path: 'contracts/new', element: <ContractCreatePage /> },
       { path: 'contracts/:id', element: <ContractEditPage /> },
       { path: 'locations', element: <LocationListPage /> },
       { path: 'locations/new', element: <LocationEditPage /> },
