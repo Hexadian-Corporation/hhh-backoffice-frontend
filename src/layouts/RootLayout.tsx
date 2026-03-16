@@ -1,5 +1,7 @@
 import { NavLink, Outlet } from "react-router"
-import { LayoutDashboard, FileText, MapPin, Package, Users } from "lucide-react"
+import { LayoutDashboard, FileText, MapPin, Package, Users, LogOut, User } from "lucide-react"
+import { getUserContext, clearTokens, getRefreshToken, redirectToLogin } from "@/lib/auth"
+import { revokeToken } from "@/api/auth"
 
 const navItems = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -10,6 +12,21 @@ const navItems = [
 ]
 
 export default function RootLayout() {
+  const user = getUserContext();
+
+  async function handleLogout() {
+    const refresh = getRefreshToken();
+    if (refresh) {
+      try {
+        await revokeToken(refresh);
+      } catch {
+        /* best-effort revocation */
+      }
+    }
+    clearTokens();
+    redirectToLogin();
+  }
+
   return (
     <div className="flex h-screen bg-[var(--color-bg)]">
       {/* Sidebar */}
@@ -43,6 +60,30 @@ export default function RootLayout() {
             </NavLink>
           ))}
         </nav>
+
+        {/* User info + Logout */}
+        <div className="border-t border-[var(--color-border)] p-3">
+          {user && (
+            <div className="flex items-center gap-2 mb-2 px-1">
+              <User className="h-4 w-4 text-[var(--color-accent)]" />
+              <div className="min-w-0 flex-1">
+                <p className="text-sm text-[var(--color-text)] truncate">{user.username}</p>
+                {user.rsiHandle && (
+                  <p className="text-xs text-[var(--color-text-muted)] truncate">{user.rsiHandle}</p>
+                )}
+              </div>
+            </div>
+          )}
+          <button
+            onClick={handleLogout}
+            className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-[var(--color-text-muted)] hover:bg-[var(--color-border)]/50 hover:text-[var(--color-text)] transition-colors"
+            style={{ fontFamily: "var(--font-body)" }}
+          >
+            <LogOut className="h-4 w-4" />
+            Logout
+          </button>
+        </div>
+
         <div className="p-4 flex justify-center">
           <img
             src="/brand/HEXADIAN-Background_Round.png"

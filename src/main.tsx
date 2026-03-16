@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router'
 import './index.css'
+import AuthGuard from './components/AuthGuard.tsx'
 import RootLayout from './layouts/RootLayout.tsx'
 import DashboardPage from './pages/DashboardPage.tsx'
 import ContractListPage from './pages/ContractListPage.tsx'
@@ -12,11 +13,20 @@ import LocationEditPage from './pages/LocationEditPage.tsx'
 import CommodityListPage from './pages/CommodityListPage.tsx'
 import CommodityEditPage from './pages/CommodityEditPage.tsx'
 import UsersPage from './pages/UsersPage.tsx'
+import CallbackPage from './pages/CallbackPage.tsx'
 
 const router = createBrowserRouter([
   {
+    path: '/callback',
+    element: <CallbackPage />,
+  },
+  {
     path: '/',
-    element: <RootLayout />,
+    element: (
+      <AuthGuard>
+        <RootLayout />
+      </AuthGuard>
+    ),
     children: [
       { index: true, element: <DashboardPage /> },
       { path: 'contracts', element: <ContractListPage /> },
