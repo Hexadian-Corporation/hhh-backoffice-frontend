@@ -71,7 +71,7 @@ describe("DashboardPage", () => {
     )
 
     expect(screen.getByText("Dashboard")).toBeInTheDocument()
-    expect(screen.getByText("Welcome to the H³ Backoffice.")).toBeInTheDocument()
+    expect(screen.getByText("Welcome to the Hexadian Backoffice.")).toBeInTheDocument()
   })
 
   it("displays KPI counts after data loads", async () => {
