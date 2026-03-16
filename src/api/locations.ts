@@ -1,15 +1,10 @@
 import type { Location, LocationCreate, LocationUpdate } from '@/types/location';
+import { authenticatedFetch } from '@/lib/api-client';
 
 const BASE = import.meta.env.VITE_MAPS_API_URL ?? 'http://localhost:8003';
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${BASE}${path}`, {
-    ...init,
-    headers: {
-      'Content-Type': 'application/json',
-      ...init?.headers,
-    },
-  });
+  const res = await authenticatedFetch(`${BASE}${path}`, init);
 
   if (!res.ok) {
     throw new Error(`API ${res.status}: ${res.statusText}`);
@@ -45,9 +40,8 @@ export async function updateLocation(id: string, data: LocationUpdate): Promise<
 }
 
 export async function deleteLocation(id: string): Promise<void> {
-  const res = await fetch(`${BASE}/locations/${id}`, {
+  const res = await authenticatedFetch(`${BASE}/locations/${id}`, {
     method: 'DELETE',
-    headers: { 'Content-Type': 'application/json' },
   });
 
   if (!res.ok) {
