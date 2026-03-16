@@ -4,6 +4,11 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  /* Typography */
+  --font-heading: 'Orbitron', sans-serif;
+  --font-body: 'Exo 2', sans-serif;
+
+  /* Colors */
   --color-bg: #0a0e17;
   --color-surface: #111827;
   --color-border: #1f2937;
@@ -13,13 +18,23 @@
   --color-danger: #ef4444;
   --color-text: #e5e7eb;
   --color-text-muted: #9ca3af;
+
+  /* NEW design tokens */
+  --color-surface-alt: #1a2234;
+  --color-accent-hover: #0891b2;
+  --color-brand: #ffffff;
+  --color-glow: rgba(6, 182, 212, 0.15);
 }
 
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family: var(--font-body);
   background-color: var(--color-bg);
   color: var(--color-text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
 }
