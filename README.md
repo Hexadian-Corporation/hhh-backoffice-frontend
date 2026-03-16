@@ -19,6 +19,30 @@ npm install
 npm run dev
 ```
 
+## Authentication
+
+The backoffice uses an **auth portal redirect flow**. Users without a valid JWT are
+redirected to the auth portal (`http://localhost:3003`) for login, then redirected back
+with an authorization code that is exchanged for tokens.
+
+### Flow
+
+1. `AuthGuard` checks for a valid `access_token` in `localStorage`.
+2. If missing or expired, the user is redirected to `{VITE_AUTH_PORTAL_URL}/login`.
+3. After login, the auth portal redirects to `/callback` with `code` and `state` params.
+4. The `CallbackPage` exchanges the code for tokens via `POST /auth/token/exchange`.
+5. Tokens are stored in `localStorage` and the user is sent to their original route.
+
+### Environment Variables
+
+| Variable | Default | Description |
+|---|---|---|
+| `VITE_AUTH_PORTAL_URL` | `http://localhost:3003` | Auth portal base URL |
+| `VITE_AUTH_API_URL` | `http://localhost:8006` | Auth service API base URL |
+| `VITE_CONTRACTS_API_URL` | `http://localhost:8001` | Contracts service API |
+| `VITE_MAPS_API_URL` | `http://localhost:8003` | Maps/locations service API |
+| `VITE_COMMODITIES_API_URL` | `http://localhost:8007` | Commodities service API |
+
 ## Run in Docker (full stack)
 
 From the monorepo root (`hexadian-hauling-helper`):
