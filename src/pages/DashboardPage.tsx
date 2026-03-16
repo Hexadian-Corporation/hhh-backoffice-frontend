@@ -100,19 +100,19 @@ export default function DashboardPage() {
       <div className="flex flex-wrap gap-3">
         <Link
           to="/contracts/new"
-          className="inline-flex items-center gap-2 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-sm font-medium transition-colors hover:border-[var(--color-accent)]/50"
+          className="inline-flex items-center gap-2 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-sm font-medium transition-all hover:border-[var(--color-accent)]/50 hover:shadow-[0_0_12px_var(--color-glow)]"
         >
           <Plus className="h-4 w-4" /> New Contract
         </Link>
         <Link
           to="/locations/new"
-          className="inline-flex items-center gap-2 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-sm font-medium transition-colors hover:border-[var(--color-accent)]/50"
+          className="inline-flex items-center gap-2 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-sm font-medium transition-all hover:border-[var(--color-accent)]/50 hover:shadow-[0_0_12px_var(--color-glow)]"
         >
           <Plus className="h-4 w-4" /> New Location
         </Link>
         <Link
           to="/commodities/new"
-          className="inline-flex items-center gap-2 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-sm font-medium transition-colors hover:border-[var(--color-accent)]/50"
+          className="inline-flex items-center gap-2 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-sm font-medium transition-all hover:border-[var(--color-accent)]/50 hover:shadow-[0_0_12px_var(--color-glow)]"
         >
           <Plus className="h-4 w-4" /> New Commodity
         </Link>

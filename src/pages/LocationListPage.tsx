@@ -85,12 +85,12 @@ export default function LocationListPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-[var(--color-border)] bg-[var(--color-surface)]">
-              <th className="px-4 py-3 text-left font-medium">Name</th>
-              <th className="px-4 py-3 text-left font-medium">Type</th>
-              <th className="px-4 py-3 text-left font-medium">Parent</th>
-              <th className="px-4 py-3 text-left font-medium">Trade Terminal</th>
-              <th className="px-4 py-3 text-left font-medium">Landing Pad</th>
-              <th className="px-4 py-3 text-right font-medium">Actions</th>
+              <th className="px-4 py-3 text-left font-semibold uppercase text-[var(--color-text-muted)]">Name</th>
+              <th className="px-4 py-3 text-left font-semibold uppercase text-[var(--color-text-muted)]">Type</th>
+              <th className="px-4 py-3 text-left font-semibold uppercase text-[var(--color-text-muted)]">Parent</th>
+              <th className="px-4 py-3 text-left font-semibold uppercase text-[var(--color-text-muted)]">Trade Terminal</th>
+              <th className="px-4 py-3 text-left font-semibold uppercase text-[var(--color-text-muted)]">Landing Pad</th>
+              <th className="px-4 py-3 text-right font-semibold uppercase text-[var(--color-text-muted)]">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -104,7 +104,7 @@ export default function LocationListPage() {
               locations.map((loc) => (
                 <tr
                   key={loc.id}
-                  className="border-b border-[var(--color-border)] hover:bg-[var(--color-surface)]/50 cursor-pointer"
+                  className="border-b border-[var(--color-border)] hover:bg-[var(--color-surface-alt)] cursor-pointer"
                   onClick={() => navigate(`/locations/${loc.id}`)}
                 >
                   <td className="px-4 py-3">{loc.name}</td>
@@ -142,7 +142,7 @@ export default function LocationListPage() {
           <div
             role="dialog"
             aria-label="Confirm deletion"
-            className="w-full max-w-md rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-6"
+            className="w-full max-w-md rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-[0_0_24px_var(--color-glow)]"
           >
             <h2 className="text-lg font-bold mb-2">Confirm Deletion</h2>
             <p className="text-sm text-[var(--color-text-muted)] mb-4">

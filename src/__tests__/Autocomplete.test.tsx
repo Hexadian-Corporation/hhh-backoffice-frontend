@@ -180,4 +180,15 @@ describe("Autocomplete", () => {
     // Should not show dropdown and should not throw
     expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
   });
+
+  it("uses surface-alt background on dropdown", async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    renderAutocomplete();
+
+    await user.type(screen.getByPlaceholderText("Search location…"), "Port");
+    await vi.advanceTimersByTimeAsync(300);
+
+    const listbox = await screen.findByRole("listbox");
+    expect(listbox.className).toContain("bg-[var(--color-surface-alt)]");
+  });
 });

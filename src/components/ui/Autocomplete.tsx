@@ -116,7 +116,7 @@ export default function Autocomplete({
       {showDropdown && results.length > 0 && (
         <ul
           role="listbox"
-          className="absolute z-10 mt-1 w-full rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] shadow-lg max-h-48 overflow-y-auto"
+          className="absolute z-10 mt-1 w-full rounded-md border border-[var(--color-border)] bg-[var(--color-surface-alt)] shadow-lg max-h-48 overflow-y-auto"
         >
           {results.map((option) => (
             <li
