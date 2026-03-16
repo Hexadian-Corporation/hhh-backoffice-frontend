@@ -63,4 +63,10 @@ describe("ConfirmationDialog", () => {
     await userEvent.click(screen.getByText("Confirm Action"));
     expect(defaultProps.onCancel).not.toHaveBeenCalled();
   });
+
+  it("applies glow shadow to dialog panel", () => {
+    render(<ConfirmationDialog {...defaultProps} />);
+    const panel = screen.getByText("Confirm Action").closest("div");
+    expect(panel?.className).toContain("shadow-[0_0_24px_var(--color-glow)]");
+  });
 });

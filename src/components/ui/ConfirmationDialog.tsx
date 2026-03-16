@@ -30,7 +30,7 @@ export default function ConfirmationDialog({
       onClick={onCancel}
     >
       <div
-        className="w-full max-w-md rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-lg"
+        className="w-full max-w-md rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-[0_0_24px_var(--color-glow)]"
         onClick={(e) => e.stopPropagation()}
       >
         <h2

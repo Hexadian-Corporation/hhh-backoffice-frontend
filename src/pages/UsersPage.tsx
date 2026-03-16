@@ -98,18 +98,18 @@ export default function UsersPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[var(--color-border)] bg-[var(--color-surface)]">
-                <th className="text-left px-4 py-3 font-medium">Username</th>
-                <th className="text-left px-4 py-3 font-medium">Email</th>
-                <th className="text-left px-4 py-3 font-medium">RSI Handle</th>
-                <th className="text-left px-4 py-3 font-medium">Verified</th>
-                <th className="text-left px-4 py-3 font-medium">Actions</th>
+                <th className="text-left px-4 py-3 font-semibold uppercase text-[var(--color-text-muted)]">Username</th>
+                <th className="text-left px-4 py-3 font-semibold uppercase text-[var(--color-text-muted)]">Email</th>
+                <th className="text-left px-4 py-3 font-semibold uppercase text-[var(--color-text-muted)]">RSI Handle</th>
+                <th className="text-left px-4 py-3 font-semibold uppercase text-[var(--color-text-muted)]">Verified</th>
+                <th className="text-left px-4 py-3 font-semibold uppercase text-[var(--color-text-muted)]">Actions</th>
               </tr>
             </thead>
             <tbody>
               {users.map((user) => (
                 <tr
                   key={user._id}
-                  className="border-b border-[var(--color-border)] last:border-b-0 hover:bg-[var(--color-surface)]/50"
+                  className="border-b border-[var(--color-border)] last:border-b-0 hover:bg-[var(--color-surface-alt)]"
                 >
                   <td className="px-4 py-3">{user.username}</td>
                   <td className="px-4 py-3 text-[var(--color-text-muted)]">

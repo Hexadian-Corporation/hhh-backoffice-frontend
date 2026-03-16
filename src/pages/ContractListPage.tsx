@@ -248,7 +248,7 @@ export default function ContractListPage() {
             <div
               key={contract.id}
               role="article"
-              className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-4 cursor-pointer hover:border-[var(--color-accent)] transition-colors"
+              className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-4 cursor-pointer hover:border-[var(--color-accent)] hover:shadow-[0_0_16px_var(--color-glow)] transition-all"
               onClick={() => navigate(`/contracts/${contract.id}`)}
             >
               {/* Title & status */}

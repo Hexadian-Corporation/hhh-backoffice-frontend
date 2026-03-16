@@ -74,4 +74,26 @@ describe("KpiCard", () => {
     await user.click(screen.getByRole("button"));
     expect(mockedNavigate).toHaveBeenCalledWith("/contracts");
   });
+
+  it("applies Orbitron font to count number", () => {
+    render(
+      <MemoryRouter>
+        <KpiCard title="Contracts" count={42} icon={<FileText />} href="/contracts" />
+      </MemoryRouter>,
+    );
+
+    const count = screen.getByText("42");
+    expect(count.style.fontFamily).toBe("var(--font-heading)");
+  });
+
+  it("applies hover glow to card", () => {
+    render(
+      <MemoryRouter>
+        <KpiCard title="Contracts" count={42} icon={<FileText />} href="/contracts" />
+      </MemoryRouter>,
+    );
+
+    const card = screen.getByRole("button");
+    expect(card.className).toContain("hover:shadow-[0_0_16px_var(--color-glow)]");
+  });
 });
