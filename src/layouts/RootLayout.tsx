@@ -14,10 +14,14 @@ export default function RootLayout() {
     <div className="flex h-screen bg-[var(--color-bg)]">
       {/* Sidebar */}
       <aside className="w-64 flex-shrink-0 border-r border-[var(--color-border)] bg-[var(--color-surface)] flex flex-col">
-        <div className="p-4 border-b border-[var(--color-border)]">
-          <h2 className="text-lg font-bold text-[var(--color-accent)]">
-            H³ Backoffice
-          </h2>
+        <div className="mb-6 px-4 pt-4 pb-4 border-b border-[var(--color-border)]">
+          <img src="/brand/HEXADIAN-Letters.png" alt="Hexadian" className="h-6 mb-1" width="175" height="60" />
+          <span
+            className="block text-xs tracking-widest uppercase"
+            style={{ fontFamily: "var(--font-body)", color: "var(--color-text-muted)" }}
+          >
+            Backoffice
+          </span>
         </div>
         <nav className="flex-1 p-2 space-y-1">
           {navItems.map(({ to, label, icon: Icon }) => (
@@ -26,18 +30,28 @@ export default function RootLayout() {
               to={to}
               end={to === "/"}
               className={({ isActive }) =>
-                `flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                `flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors ${
                   isActive
                     ? "bg-[var(--color-accent)]/10 text-[var(--color-accent)]"
                     : "text-[var(--color-text-muted)] hover:bg-[var(--color-border)]/50 hover:text-[var(--color-text)]"
                 }`
               }
+              style={{ fontFamily: "var(--font-body)", fontWeight: 500 }}
             >
               <Icon className="h-4 w-4" />
               {label}
             </NavLink>
           ))}
         </nav>
+        <div className="p-4 flex justify-center">
+          <img
+            src="/brand/HEXADIAN-Background_Round.png"
+            alt=""
+            className="h-8 w-8 opacity-30"
+            width="32"
+            height="32"
+          />
+        </div>
       </aside>
 
       {/* Main Content */}

@@ -61,9 +61,28 @@ export default function DashboardPage() {
 
   return (
     <div className="p-6 space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold mb-1">Dashboard</h1>
-        <p className="text-[var(--color-text-muted)]">Welcome to the H³ Backoffice.</p>
+      <div
+        className="relative -m-6 mb-0 overflow-hidden rounded-b-none"
+        style={{
+          backgroundImage: "url('/brand/HEXADIAN-Background_BLack.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        <div className="bg-gradient-to-r from-[var(--color-bg)]/80 to-[var(--color-bg)]/40 px-6 py-10">
+          <h1
+            className="text-2xl font-bold mb-1"
+            style={{ fontFamily: "var(--font-heading)" }}
+          >
+            Dashboard
+          </h1>
+          <p
+            className="text-[var(--color-text-muted)]"
+            style={{ fontFamily: "var(--font-body)" }}
+          >
+            Welcome to the Hexadian Backoffice.
+          </p>
+        </div>
       </div>
 
       {/* KPI Cards */}
@@ -100,19 +119,22 @@ export default function DashboardPage() {
       <div className="flex flex-wrap gap-3">
         <Link
           to="/contracts/new"
-          className="inline-flex items-center gap-2 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-sm font-medium transition-all hover:border-[var(--color-accent)]/50 hover:shadow-[0_0_12px_var(--color-glow)]"
+          className="inline-flex items-center gap-2 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-sm font-semibold transition-all hover:border-[var(--color-accent)]/50 hover:shadow-[0_0_16px_var(--color-glow)]"
+          style={{ fontFamily: "var(--font-body)" }}
         >
           <Plus className="h-4 w-4" /> New Contract
         </Link>
         <Link
           to="/locations/new"
-          className="inline-flex items-center gap-2 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-sm font-medium transition-all hover:border-[var(--color-accent)]/50 hover:shadow-[0_0_12px_var(--color-glow)]"
+          className="inline-flex items-center gap-2 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-sm font-semibold transition-all hover:border-[var(--color-accent)]/50 hover:shadow-[0_0_16px_var(--color-glow)]"
+          style={{ fontFamily: "var(--font-body)" }}
         >
           <Plus className="h-4 w-4" /> New Location
         </Link>
         <Link
           to="/commodities/new"
-          className="inline-flex items-center gap-2 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-sm font-medium transition-all hover:border-[var(--color-accent)]/50 hover:shadow-[0_0_12px_var(--color-glow)]"
+          className="inline-flex items-center gap-2 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-sm font-semibold transition-all hover:border-[var(--color-accent)]/50 hover:shadow-[0_0_16px_var(--color-glow)]"
+          style={{ fontFamily: "var(--font-body)" }}
         >
           <Plus className="h-4 w-4" /> New Commodity
         </Link>

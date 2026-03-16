@@ -83,7 +83,7 @@ describe("KpiCard", () => {
     );
 
     const count = screen.getByText("42");
-    expect(count.className).toContain("font-[family-name:var(--font-heading)]");
+    expect(count.style.fontFamily).toBe("var(--font-heading)");
   });
 
   it("applies hover glow to card", () => {
