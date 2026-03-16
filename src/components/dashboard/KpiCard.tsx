@@ -18,10 +18,15 @@ export default function KpiCard({ title, count, icon, href, loading, error, brea
     <button
       type="button"
       onClick={() => navigate(href)}
-      className="w-full text-left rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-5 transition-colors hover:border-[var(--color-accent)]/50 cursor-pointer"
+      className="w-full text-left rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-5 transition-all hover:border-[var(--color-accent)]/50 hover:shadow-[0_0_16px_var(--color-glow)] cursor-pointer"
     >
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-medium text-[var(--color-text-muted)]">{title}</h3>
+        <h3
+          className="text-sm font-medium text-[var(--color-text-muted)]"
+          style={{ fontFamily: "var(--font-body)" }}
+        >
+          {title}
+        </h3>
         <span className="text-[var(--color-accent)]">{icon}</span>
       </div>
 
@@ -29,7 +34,12 @@ export default function KpiCard({ title, count, icon, href, loading, error, brea
       {error && <p className="text-sm text-[var(--color-danger)]">{error}</p>}
       {!loading && !error && (
         <>
-          <p className="text-3xl font-bold">{count}</p>
+          <p
+            className="text-3xl font-bold"
+            style={{ fontFamily: "var(--font-heading)" }}
+          >
+            {count}
+          </p>
           {breakdown && breakdown.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-2">
               {breakdown.map(({ label, count: c }) => (
