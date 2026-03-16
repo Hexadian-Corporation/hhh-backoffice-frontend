@@ -71,3 +71,4 @@ The issue title and PR title must be **identical**. PR body must include `Fixes 
 
 - **Keep the README up to date.** When you add, remove, or change commands, environment variables, API endpoints, or architecture — update `README.md`. The README is the source of truth for developers.
 - **Keep the monorepo CLI service registry up to date.** When adding or removing a service, update `SERVICES`, `FRONTENDS`, `COMPOSE_SERVICE_MAP`, and `SERVICE_ALIASES` in `hexadian-hauling-helper/hhh_cli/__init__.py`, plus the `docker-compose.yml` entry.
+- **Keep GitHub workflows in sync with the canonical patterns.** See `gh-workflow.instructions.md` for the authoritative workflow templates (`auto-status.yml`, `notify-main.yml`, etc.) and the full checklist for project board field IDs.
