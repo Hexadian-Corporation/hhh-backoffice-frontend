@@ -14,6 +14,7 @@ describe("RootLayout", () => {
     expect(screen.getByText("Dashboard")).toBeInTheDocument()
     expect(screen.getByText("Contratos")).toBeInTheDocument()
     expect(screen.getByText("Ubicaciones")).toBeInTheDocument()
+    expect(screen.getByText("Users")).toBeInTheDocument()
   })
 
   it("renders Contratos as a link to /contracts", () => {
@@ -36,5 +37,16 @@ describe("RootLayout", () => {
 
     const link = screen.getByRole("link", { name: /ubicaciones/i })
     expect(link).toHaveAttribute("href", "/locations")
+  })
+
+  it("renders Users as a link to /users", () => {
+    render(
+      <MemoryRouter initialEntries={["/"]}>
+        <RootLayout />
+      </MemoryRouter>,
+    )
+
+    const link = screen.getByRole("link", { name: /users/i })
+    expect(link).toHaveAttribute("href", "/users")
   })
 })
