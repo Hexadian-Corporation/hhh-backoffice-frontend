@@ -15,7 +15,7 @@ export default function RootLayout() {
       {/* Sidebar */}
       <aside className="w-64 flex-shrink-0 border-r border-[var(--color-border)] bg-[var(--color-surface)] flex flex-col">
         <div className="mb-6 px-4 pt-4 pb-4 border-b border-[var(--color-border)]">
-          <img src="/brand/HEXADIAN-Letters.png" alt="Hexadian" className="h-6 mb-1" />
+          <img src="/brand/HEXADIAN-Letters.png" alt="Hexadian" className="h-6 mb-1" width="175" height="60" />
           <span
             className="block text-xs tracking-widest uppercase"
             style={{ fontFamily: "var(--font-body)", color: "var(--color-text-muted)" }}
@@ -48,6 +48,8 @@ export default function RootLayout() {
             src="/brand/HEXADIAN-Background_Round.png"
             alt=""
             className="h-8 w-8 opacity-30"
+            width="32"
+            height="32"
           />
         </div>
       </aside>
