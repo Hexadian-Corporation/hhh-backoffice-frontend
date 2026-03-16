@@ -11,6 +11,7 @@ import LocationListPage from './pages/LocationListPage.tsx'
 import LocationEditPage from './pages/LocationEditPage.tsx'
 import CommodityListPage from './pages/CommodityListPage.tsx'
 import CommodityEditPage from './pages/CommodityEditPage.tsx'
+import UsersPage from './pages/UsersPage.tsx'
 
 const router = createBrowserRouter([
   {
@@ -27,6 +28,7 @@ const router = createBrowserRouter([
       { path: 'commodities', element: <CommodityListPage /> },
       { path: 'commodities/new', element: <CommodityEditPage /> },
       { path: 'commodities/:id', element: <CommodityEditPage /> },
+      { path: 'users', element: <UsersPage /> },
     ],
   },
 ])
