@@ -38,7 +38,7 @@ const router = createBrowserRouter([
       { path: 'locations/:id', element: <PermissionGuard required={['hhh:locations:write']}><LocationEditPage /></PermissionGuard> },
       { path: 'commodities', element: <PermissionGuard required={['hhh:commodities:read']}><CommodityListPage /></PermissionGuard> },
       { path: 'commodities/new', element: <PermissionGuard required={['hhh:commodities:write']}><CommodityEditPage /></PermissionGuard> },
-      { path: 'commodities/:id', element: <PermissionGuard required={['hhh:commodities:read']}><CommodityEditPage /></PermissionGuard> },
+      { path: 'commodities/:id', element: <PermissionGuard required={['hhh:commodities:write']}><CommodityEditPage /></PermissionGuard> },
       { path: 'users', element: <PermissionGuard required={['auth:users:read']}><UsersPage /></PermissionGuard> },
     ],
   },
