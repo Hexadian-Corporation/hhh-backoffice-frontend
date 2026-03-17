@@ -1,12 +1,6 @@
-import { getUserContext } from '@/lib/auth';
+import { getUserContext, hasPermission as authHasPermission, hasAnyPermission as authHasAnyPermission } from '@/lib/auth';
 
-export function hasPermission(permissions: string[], required: string): boolean {
-  return permissions.includes(required);
-}
-
-export function hasAnyPermission(permissions: string[], required: string[]): boolean {
-  return required.some((p) => permissions.includes(p));
-}
+export { authHasPermission as hasPermission, authHasAnyPermission as hasAnyPermission };
 
 export function usePermissions(): string[] {
   const ctx = getUserContext();
