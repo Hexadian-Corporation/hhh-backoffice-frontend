@@ -28,6 +28,7 @@ vi.mock("@/lib/permissions", () => ({
   hasAnyPermission: () => true,
 }))
 
+
 describe("RootLayout", () => {
   it("renders the sidebar with branding and navigation links", () => {
     render(
