@@ -56,6 +56,19 @@ The issue title and PR title must be **identical**. PR body must include `Fixes 
 - Vitest with ≥90% coverage on changed lines (`diff-cover` via `pipx`)
 - Squash merge only — PR title becomes the commit message
 
+## CI & Branch Protection
+
+**Required status checks** (all with `app_id: 15368` — GitHub Actions):
+
+| Check | What it does |
+|-------|--------------|
+| `Lint & Type Check` | `npm run lint` + `npx tsc --noEmit` |
+| `Tests & Coverage` | `vitest` + `diff-cover` (≥90 % on changed lines) |
+| `Validate PR Title` | Conventional-commit format |
+| `Secret Scan` | Gitleaks |
+
+> **Critical:** Required status checks must always use `app_id: 15368` (GitHub Actions). Using `app_id: null` causes checks to freeze as "Expected — Waiting for status" for any check name not previously reported on `main`. See BUG-011.
+
 ## Tooling
 
 | Action | Command |
