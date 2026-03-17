@@ -5,6 +5,17 @@ import { vi, type Mock } from "vitest";
 import UsersPage from "@/pages/UsersPage";
 import type { User } from "@/types/user";
 
+vi.mock("@/lib/permissions", () => ({
+  usePermissions: () => [
+    "contracts:read", "contracts:write",
+    "locations:read", "locations:write",
+    "commodities:read", "commodities:write",
+    "users:read", "users:admin",
+  ],
+  hasPermission: () => true,
+  hasAnyPermission: () => true,
+}));
+
 const mockUsers: User[] = [
   {
     _id: "user-1",

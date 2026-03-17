@@ -6,6 +6,17 @@ import type { Contract } from "@/types/contract"
 import type { Location } from "@/types/location"
 import type { Commodity } from "@/types/commodity"
 
+vi.mock("@/lib/permissions", () => ({
+  usePermissions: () => [
+    "contracts:read", "contracts:write",
+    "locations:read", "locations:write",
+    "commodities:read", "commodities:write",
+    "users:read", "users:admin",
+  ],
+  hasPermission: () => true,
+  hasAnyPermission: () => true,
+}))
+
 vi.mock("@/api/contracts", () => ({
   listContracts: vi.fn(),
 }))

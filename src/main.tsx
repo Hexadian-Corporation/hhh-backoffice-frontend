@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router'
 import './index.css'
 import AuthGuard from './components/AuthGuard.tsx'
+import PermissionGuard from './components/PermissionGuard.tsx'
 import RootLayout from './layouts/RootLayout.tsx'
 import DashboardPage from './pages/DashboardPage.tsx'
 import ContractListPage from './pages/ContractListPage.tsx'
@@ -29,16 +30,16 @@ const router = createBrowserRouter([
     ),
     children: [
       { index: true, element: <DashboardPage /> },
-      { path: 'contracts', element: <ContractListPage /> },
-      { path: 'contracts/new', element: <ContractCreatePage /> },
-      { path: 'contracts/:id', element: <ContractEditPage /> },
-      { path: 'locations', element: <LocationListPage /> },
-      { path: 'locations/new', element: <LocationEditPage /> },
-      { path: 'locations/:id', element: <LocationEditPage /> },
-      { path: 'commodities', element: <CommodityListPage /> },
-      { path: 'commodities/new', element: <CommodityEditPage /> },
-      { path: 'commodities/:id', element: <CommodityEditPage /> },
-      { path: 'users', element: <UsersPage /> },
+      { path: 'contracts', element: <PermissionGuard required={['contracts:read']}><ContractListPage /></PermissionGuard> },
+      { path: 'contracts/new', element: <PermissionGuard required={['contracts:write']}><ContractCreatePage /></PermissionGuard> },
+      { path: 'contracts/:id', element: <PermissionGuard required={['contracts:read']}><ContractEditPage /></PermissionGuard> },
+      { path: 'locations', element: <PermissionGuard required={['locations:read']}><LocationListPage /></PermissionGuard> },
+      { path: 'locations/new', element: <PermissionGuard required={['locations:write']}><LocationEditPage /></PermissionGuard> },
+      { path: 'locations/:id', element: <PermissionGuard required={['locations:read']}><LocationEditPage /></PermissionGuard> },
+      { path: 'commodities', element: <PermissionGuard required={['commodities:read']}><CommodityListPage /></PermissionGuard> },
+      { path: 'commodities/new', element: <PermissionGuard required={['commodities:write']}><CommodityEditPage /></PermissionGuard> },
+      { path: 'commodities/:id', element: <PermissionGuard required={['commodities:read']}><CommodityEditPage /></PermissionGuard> },
+      { path: 'users', element: <PermissionGuard required={['users:read']}><UsersPage /></PermissionGuard> },
     ],
   },
 ])

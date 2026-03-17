@@ -1,6 +1,18 @@
 import { render, screen } from "@testing-library/react"
 import { MemoryRouter } from "react-router"
+import { vi } from "vitest"
 import RootLayout from "@/layouts/RootLayout"
+
+vi.mock("@/lib/permissions", () => ({
+  usePermissions: () => [
+    "contracts:read", "contracts:write",
+    "locations:read", "locations:write",
+    "commodities:read", "commodities:write",
+    "users:read", "users:admin",
+  ],
+  hasPermission: () => true,
+  hasAnyPermission: () => true,
+}))
 
 describe("RootLayout", () => {
   it("renders the sidebar with branding and navigation links", () => {

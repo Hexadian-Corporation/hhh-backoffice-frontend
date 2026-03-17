@@ -5,6 +5,7 @@ import type { Contract } from "@/types/contract";
 import { listContracts, updateContract, deleteContract } from "@/api/contracts";
 import { Button } from "@/components/ui/button";
 import ConfirmationDialog from "@/components/ui/ConfirmationDialog";
+import { usePermissions, hasPermission } from "@/lib/permissions";
 
 const STATUS_OPTIONS = ["all", "draft", "active", "expired", "cancelled"] as const;
 type StatusFilter = (typeof STATUS_OPTIONS)[number];
@@ -72,6 +73,8 @@ function formatDeadline(iso: string): string {
 
 export default function ContractListPage() {
   const navigate = useNavigate();
+  const permissions = usePermissions();
+  const canWrite = hasPermission(permissions, "contracts:write");
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -213,10 +216,12 @@ export default function ContractListPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Contratos</h1>
+        {canWrite && (
         <Button onClick={() => navigate("/contracts/new")}>
           <Plus className="h-4 w-4" />
           New Contract
         </Button>
+        )}
       </div>
 
       {/* Status filter */}
@@ -268,6 +273,7 @@ export default function ContractListPage() {
                   >
                     {contract.status}
                   </span>
+                  {canWrite && (
                   <button
                     type="button"
                     aria-label={`Delete ${contract.title}`}
@@ -279,6 +285,7 @@ export default function ContractListPage() {
                   >
                     <Trash2 className="h-4 w-4 text-[var(--color-danger)]" />
                   </button>
+                  )}
                 </div>
               </div>
 
@@ -305,7 +312,7 @@ export default function ContractListPage() {
               </p>
 
               {/* Status action buttons */}
-              {STATUS_ACTIONS[contract.status] && (
+              {canWrite && STATUS_ACTIONS[contract.status] && (
                 <div
                   className="flex gap-2 mt-3 pt-3 border-t border-[var(--color-border)]"
                   onClick={(e) => e.stopPropagation()}

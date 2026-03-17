@@ -4,6 +4,7 @@ import type { User } from "@/types/user";
 import { getUsers } from "@/api/auth";
 import { Button } from "@/components/ui/button";
 import VerificationModal from "@/components/VerificationModal";
+import { usePermissions, hasPermission } from "@/lib/permissions";
 
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -11,6 +12,8 @@ export default function UsersPage() {
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const permissions = usePermissions();
+  const canAdmin = hasPermission(permissions, "users:admin");
 
   useEffect(() => {
     let cancelled = false;
@@ -134,6 +137,7 @@ export default function UsersPage() {
                     )}
                   </td>
                   <td className="px-4 py-3">
+                    {canAdmin && (
                     <Button
                       size="sm"
                       variant="outline"
@@ -142,6 +146,7 @@ export default function UsersPage() {
                       <Shield className="h-3.5 w-3.5" />
                       {user.rsi_verified ? "Re-verify" : "Verify"}
                     </Button>
+                    )}
                   </td>
                 </tr>
               ))}

@@ -5,6 +5,17 @@ import { vi, type Mock } from "vitest";
 import ContractListPage from "@/pages/ContractListPage";
 import type { Contract } from "@/types/contract";
 
+vi.mock("@/lib/permissions", () => ({
+  usePermissions: () => [
+    "contracts:read", "contracts:write",
+    "locations:read", "locations:write",
+    "commodities:read", "commodities:write",
+    "users:read", "users:admin",
+  ],
+  hasPermission: () => true,
+  hasAnyPermission: () => true,
+}));
+
 const makeContract = (
   overrides: Partial<Contract> = {},
 ): Contract => ({

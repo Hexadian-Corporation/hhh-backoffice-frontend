@@ -5,6 +5,17 @@ import { vi, type Mock } from "vitest";
 import LocationListPage from "@/pages/LocationListPage";
 import type { Location } from "@/types/location";
 
+vi.mock("@/lib/permissions", () => ({
+  usePermissions: () => [
+    "contracts:read", "contracts:write",
+    "locations:read", "locations:write",
+    "commodities:read", "commodities:write",
+    "users:read", "users:admin",
+  ],
+  hasPermission: () => true,
+  hasAnyPermission: () => true,
+}));
+
 const mockLocations: Location[] = [
   {
     id: "loc-1",

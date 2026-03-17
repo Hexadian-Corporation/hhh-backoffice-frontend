@@ -5,6 +5,17 @@ import { vi, type Mock } from "vitest";
 import CommodityListPage from "@/pages/CommodityListPage";
 import type { Commodity } from "@/types/commodity";
 
+vi.mock("@/lib/permissions", () => ({
+  usePermissions: () => [
+    "contracts:read", "contracts:write",
+    "locations:read", "locations:write",
+    "commodities:read", "commodities:write",
+    "users:read", "users:admin",
+  ],
+  hasPermission: () => true,
+  hasAnyPermission: () => true,
+}));
+
 const mockCommodities: Commodity[] = [
   {
     id: "comm-1",
