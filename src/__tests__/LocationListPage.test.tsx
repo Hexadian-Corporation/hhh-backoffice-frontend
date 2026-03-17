@@ -7,10 +7,10 @@ import type { Location } from "@/types/location";
 
 vi.mock("@/lib/permissions", () => ({
   usePermissions: () => [
-    "contracts:read", "contracts:write",
-    "locations:read", "locations:write",
-    "commodities:read", "commodities:write",
-    "users:read", "users:admin",
+    "hhh:contracts:read", "hhh:contracts:write",
+    "hhh:locations:read", "hhh:locations:write",
+    "hhh:commodities:read", "hhh:commodities:write",
+    "auth:users:read", "auth:users:admin",
   ],
   hasPermission: () => true,
   hasAnyPermission: () => true,

@@ -7,6 +7,18 @@ const mockHasAnyPermission = vi.fn(
   (perms: string[], req: string[]) => req.some((p: string) => perms.includes(p)),
 );
 
+vi.mock("@/lib/auth", () => ({
+  getUserContext: vi.fn(() => ({ username: "admin", permissions: [] })),
+  getAccessToken: vi.fn(() => null),
+  clearTokens: vi.fn(),
+  getRefreshToken: vi.fn(() => null),
+  redirectToLogin: vi.fn(),
+}));
+
+vi.mock("@/api/auth", () => ({
+  revokeToken: vi.fn(),
+}));
+
 vi.mock("@/lib/permissions", () => ({
   usePermissions: (...args: unknown[]) => mockUsePermissions(...(args as [])),
   hasAnyPermission: (...args: unknown[]) => mockHasAnyPermission(...(args as [string[], string[]])),
@@ -19,8 +31,8 @@ afterEach(() => {
 });
 
 describe("RootLayout permission filtering", () => {
-  it("hides Contratos nav item when user lacks contracts:read", () => {
-    mockUsePermissions.mockReturnValue(["locations:read"]);
+  it("hides Contratos nav item when user lacks contracts:write", () => {
+    mockUsePermissions.mockReturnValue(["hhh:locations:write"]);
 
     render(
       <MemoryRouter initialEntries={["/"]}>
@@ -47,12 +59,12 @@ describe("RootLayout permission filtering", () => {
     expect(screen.getByText("Dashboard")).toBeInTheDocument();
   });
 
-  it("shows all nav items when user has all read permissions", () => {
+  it("shows all nav items when user has all required permissions", () => {
     mockUsePermissions.mockReturnValue([
-      "contracts:read",
-      "locations:read",
-      "commodities:read",
-      "users:read",
+      "hhh:contracts:write",
+      "hhh:locations:write",
+      "hhh:commodities:write",
+      "auth:users:read",
     ]);
 
     render(

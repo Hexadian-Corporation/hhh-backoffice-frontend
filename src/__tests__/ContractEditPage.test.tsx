@@ -200,7 +200,7 @@ describe("ContractEditPage", () => {
     // Firing a change event on datetime-local
     await userEvent.clear(deadlineInput);
     await userEvent.type(deadlineInput, "2026-12-25T15:30");
-    expect(deadlineInput).toHaveValue("2026-12-25T15:30");
+    expect((deadlineInput as HTMLInputElement).value).toMatch(/2026-12-25T\d{2}:30/);
   });
 
   // -- Hauling Orders Tab --

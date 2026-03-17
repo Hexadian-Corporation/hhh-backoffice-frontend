@@ -119,7 +119,7 @@ export default function DashboardPage() {
 
       {/* Quick Actions */}
       <div className="flex flex-wrap gap-3">
-        {hasPermission(permissions, "contracts:write") && (
+        {hasPermission(permissions, "hhh:contracts:write") && (
         <Link
           to="/contracts/new"
           className="inline-flex items-center gap-2 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-sm font-semibold transition-all hover:border-[var(--color-accent)]/50 hover:shadow-[0_0_16px_var(--color-glow)]"
@@ -128,7 +128,7 @@ export default function DashboardPage() {
           <Plus className="h-4 w-4" /> New Contract
         </Link>
         )}
-        {hasPermission(permissions, "locations:write") && (
+        {hasPermission(permissions, "hhh:locations:write") && (
         <Link
           to="/locations/new"
           className="inline-flex items-center gap-2 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-sm font-semibold transition-all hover:border-[var(--color-accent)]/50 hover:shadow-[0_0_16px_var(--color-glow)]"
@@ -137,7 +137,7 @@ export default function DashboardPage() {
           <Plus className="h-4 w-4" /> New Location
         </Link>
         )}
-        {hasPermission(permissions, "commodities:write") && (
+        {hasPermission(permissions, "hhh:commodities:write") && (
         <Link
           to="/commodities/new"
           className="inline-flex items-center gap-2 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-sm font-semibold transition-all hover:border-[var(--color-accent)]/50 hover:shadow-[0_0_16px_var(--color-glow)]"

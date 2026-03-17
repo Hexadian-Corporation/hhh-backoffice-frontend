@@ -7,10 +7,10 @@ import type { Contract } from "@/types/contract";
 
 vi.mock("@/lib/permissions", () => ({
   usePermissions: () => [
-    "contracts:read", "contracts:write",
-    "locations:read", "locations:write",
-    "commodities:read", "commodities:write",
-    "users:read", "users:admin",
+    "hhh:contracts:read", "hhh:contracts:write",
+    "hhh:locations:read", "hhh:locations:write",
+    "hhh:commodities:read", "hhh:commodities:write",
+    "auth:users:read", "auth:users:admin",
   ],
   hasPermission: () => true,
   hasAnyPermission: () => true,
@@ -194,8 +194,8 @@ describe("ContractListPage", () => {
     renderPage();
     await screen.findByText("Contratos");
 
-    expect(screen.getByText(/25,000/)).toBeInTheDocument();
-    expect(screen.getByText(/50,000/)).toBeInTheDocument();
+    expect(screen.getByText(/25[,.]?000/)).toBeInTheDocument();
+    expect(screen.getByText(/50[,.]?000/)).toBeInTheDocument();
   });
 
   it("displays hauling order counts", async () => {

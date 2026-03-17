@@ -6,10 +6,10 @@ import { usePermissions, hasAnyPermission } from "@/lib/permissions"
 
 const navItems = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard, permissions: [] as string[] },
-  { to: "/contracts", label: "Contratos", icon: FileText, permissions: ["contracts:read"] },
-  { to: "/locations", label: "Ubicaciones", icon: MapPin, permissions: ["locations:read"] },
-  { to: "/commodities", label: "Mercancías", icon: Package, permissions: ["commodities:read"] },
-  { to: "/users", label: "Users", icon: Users, permissions: ["users:read"] },
+  { to: "/contracts", label: "Contratos", icon: FileText, permissions: ["hhh:contracts:write"] },
+  { to: "/locations", label: "Ubicaciones", icon: MapPin, permissions: ["hhh:locations:write"] },
+  { to: "/commodities", label: "Mercancías", icon: Package, permissions: ["hhh:commodities:write"] },
+  { to: "/users", label: "Users", icon: Users, permissions: ["auth:users:read"] },
 ]
 
 export default function RootLayout() {

@@ -67,7 +67,7 @@ afterEach(() => {
 
 describe("UsersPage permission filtering", () => {
   it("hides verify buttons when user lacks users:admin", async () => {
-    mockUsePermissions.mockReturnValue(["users:read"]);
+    mockUsePermissions.mockReturnValue(["auth:users:read"]);
 
     renderPage();
     await screen.findByText("testpilot");
@@ -77,7 +77,7 @@ describe("UsersPage permission filtering", () => {
   });
 
   it("shows verify buttons when user has users:admin", async () => {
-    mockUsePermissions.mockReturnValue(["users:read", "users:admin"]);
+    mockUsePermissions.mockReturnValue(["auth:users:read", "auth:users:admin"]);
 
     renderPage();
     await screen.findByText("testpilot");

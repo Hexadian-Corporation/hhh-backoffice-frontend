@@ -9,7 +9,7 @@ import { usePermissions, hasPermission } from "@/lib/permissions";
 export default function LocationListPage() {
   const navigate = useNavigate();
   const permissions = usePermissions();
-  const canWrite = hasPermission(permissions, "locations:write");
+  const canWrite = hasPermission(permissions, "hhh:locations:write");
   const [locations, setLocations] = useState<Location[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

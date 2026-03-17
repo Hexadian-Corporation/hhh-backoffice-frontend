@@ -44,7 +44,7 @@ afterEach(() => {
 
 describe("DashboardPage permission filtering", () => {
   it("hides quick action links when user lacks write permissions", () => {
-    mockUsePermissions.mockReturnValue(["contracts:read", "locations:read", "commodities:read"]);
+    mockUsePermissions.mockReturnValue(["hhh:contracts:read", "hhh:locations:read", "hhh:commodities:read"]);
 
     render(
       <MemoryRouter>
@@ -59,9 +59,9 @@ describe("DashboardPage permission filtering", () => {
 
   it("shows quick action links when user has write permissions", () => {
     mockUsePermissions.mockReturnValue([
-      "contracts:read", "contracts:write",
-      "locations:read", "locations:write",
-      "commodities:read", "commodities:write",
+      "hhh:contracts:read", "hhh:contracts:write",
+      "hhh:locations:read", "hhh:locations:write",
+      "hhh:commodities:read", "hhh:commodities:write",
     ]);
 
     render(
@@ -76,7 +76,7 @@ describe("DashboardPage permission filtering", () => {
   });
 
   it("shows only permitted quick action links", () => {
-    mockUsePermissions.mockReturnValue(["contracts:write", "locations:read"]);
+    mockUsePermissions.mockReturnValue(["hhh:contracts:write", "hhh:locations:read"]);
 
     render(
       <MemoryRouter>

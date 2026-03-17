@@ -1,19 +1,30 @@
-import { Link } from "react-router";
-import { ShieldX } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { clearTokens, redirectToLogin } from "@/lib/auth";
 
 export default function ForbiddenPage() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] p-6 text-center">
-      <ShieldX className="h-16 w-16 text-[var(--color-danger)] mb-4" />
-      <h1 className="text-2xl font-bold mb-2">Insufficient Permissions</h1>
-      <p className="text-[var(--color-text-muted)] mb-6 max-w-md">
-        You do not have the required permissions to access this page. Contact an
-        administrator if you believe this is an error.
+    <div className="flex h-screen flex-col items-center justify-center bg-[var(--color-bg)] text-center">
+      <h1 className="text-6xl font-bold text-[var(--color-text)]">403</h1>
+      <p className="mt-4 text-lg text-[var(--color-text-muted)]">
+        You don&apos;t have permission to access this application.
       </p>
-      <Button asChild variant="outline">
-        <Link to="/">Back to Dashboard</Link>
-      </Button>
+      <p className="mt-1 text-sm text-[var(--color-text-muted)]" style={{ opacity: 0.6 }}>
+        Contact an administrator to request access.
+      </p>
+      <button
+        onClick={() => {
+          clearTokens();
+          redirectToLogin();
+        }}
+        className="mt-8 rounded-md px-6 py-2 text-sm font-medium transition-colors"
+        style={{
+          backgroundColor: "var(--color-surface)",
+          color: "var(--color-text)",
+          border: "1px solid var(--color-border)",
+          fontFamily: "var(--font-body)",
+        }}
+      >
+        Log out
+      </button>
     </div>
   );
 }

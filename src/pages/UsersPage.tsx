@@ -13,7 +13,7 @@ export default function UsersPage() {
   const [retryCount, setRetryCount] = useState(0);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const permissions = usePermissions();
-  const canAdmin = hasPermission(permissions, "users:admin");
+  const canAdmin = hasPermission(permissions, "auth:users:admin");
 
   useEffect(() => {
     let cancelled = false;

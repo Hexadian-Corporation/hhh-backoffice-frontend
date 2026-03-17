@@ -1,38 +1,30 @@
 import { render, screen } from "@testing-library/react";
-import { MemoryRouter } from "react-router";
+import { vi } from "vitest";
 import ForbiddenPage from "@/pages/ForbiddenPage";
 
-describe("ForbiddenPage", () => {
-  it("renders the insufficient permissions heading", () => {
-    render(
-      <MemoryRouter>
-        <ForbiddenPage />
-      </MemoryRouter>,
-    );
+vi.mock("@/lib/auth", () => ({
+  clearTokens: vi.fn(),
+  redirectToLogin: vi.fn(),
+}));
 
-    expect(screen.getByText("Insufficient Permissions")).toBeInTheDocument();
+describe("ForbiddenPage", () => {
+  it("renders the 403 heading", () => {
+    render(<ForbiddenPage />);
+
+    expect(screen.getByText("403")).toBeInTheDocument();
   });
 
-  it("renders the descriptive message", () => {
-    render(
-      <MemoryRouter>
-        <ForbiddenPage />
-      </MemoryRouter>,
-    );
+  it("renders the permission denied message", () => {
+    render(<ForbiddenPage />);
 
     expect(
-      screen.getByText(/You do not have the required permissions/),
+      screen.getByText(/You don't have permission to access this application/),
     ).toBeInTheDocument();
   });
 
-  it("renders a link back to dashboard", () => {
-    render(
-      <MemoryRouter>
-        <ForbiddenPage />
-      </MemoryRouter>,
-    );
+  it("renders a log out button", () => {
+    render(<ForbiddenPage />);
 
-    const link = screen.getByRole("link", { name: /back to dashboard/i });
-    expect(link).toHaveAttribute("href", "/");
+    expect(screen.getByRole("button", { name: /log out/i })).toBeInTheDocument();
   });
 });

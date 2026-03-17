@@ -1,5 +1,5 @@
 import { usePermissions, hasAnyPermission } from '@/lib/permissions';
-import ForbiddenPage from '@/pages/ForbiddenPage';
+import InsufficientPermissionsPage from '@/pages/InsufficientPermissionsPage';
 
 interface PermissionGuardProps {
   required: string[];
@@ -10,7 +10,7 @@ export default function PermissionGuard({ required, children }: PermissionGuardP
   const permissions = usePermissions();
 
   if (!hasAnyPermission(permissions, required)) {
-    return <ForbiddenPage />;
+    return <InsufficientPermissionsPage />;
   }
 
   return <>{children}</>;

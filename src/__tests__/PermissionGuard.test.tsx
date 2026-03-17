@@ -20,11 +20,11 @@ afterEach(() => {
 
 describe("PermissionGuard", () => {
   it("renders children when user has the required permission", () => {
-    mockUsePermissions.mockReturnValue(["contracts:read", "contracts:write"]);
+    mockUsePermissions.mockReturnValue(["hhh:contracts:read", "hhh:contracts:write"]);
 
     render(
       <MemoryRouter>
-        <PermissionGuard required={["contracts:read"]}>
+        <PermissionGuard required={["hhh:contracts:read"]}>
           <p>Protected Content</p>
         </PermissionGuard>
       </MemoryRouter>,
@@ -33,12 +33,12 @@ describe("PermissionGuard", () => {
     expect(screen.getByText("Protected Content")).toBeInTheDocument();
   });
 
-  it("renders ForbiddenPage when user lacks the required permission", () => {
-    mockUsePermissions.mockReturnValue(["locations:read"]);
+  it("renders InsufficientPermissionsPage when user lacks the required permission", () => {
+    mockUsePermissions.mockReturnValue(["hhh:locations:read"]);
 
     render(
       <MemoryRouter>
-        <PermissionGuard required={["contracts:read"]}>
+        <PermissionGuard required={["hhh:contracts:read"]}>
           <p>Protected Content</p>
         </PermissionGuard>
       </MemoryRouter>,
@@ -48,12 +48,12 @@ describe("PermissionGuard", () => {
     expect(screen.queryByText("Protected Content")).not.toBeInTheDocument();
   });
 
-  it("renders ForbiddenPage when user has no permissions", () => {
+  it("renders InsufficientPermissionsPage when user has no permissions", () => {
     mockUsePermissions.mockReturnValue([]);
 
     render(
       <MemoryRouter>
-        <PermissionGuard required={["users:read"]}>
+        <PermissionGuard required={["auth:users:read"]}>
           <p>Admin Panel</p>
         </PermissionGuard>
       </MemoryRouter>,
@@ -64,11 +64,11 @@ describe("PermissionGuard", () => {
   });
 
   it("renders children when user has any of the required permissions", () => {
-    mockUsePermissions.mockReturnValue(["contracts:write"]);
+    mockUsePermissions.mockReturnValue(["hhh:contracts:write"]);
 
     render(
       <MemoryRouter>
-        <PermissionGuard required={["contracts:read", "contracts:write"]}>
+        <PermissionGuard required={["hhh:contracts:read", "hhh:contracts:write"]}>
           <p>Editable Content</p>
         </PermissionGuard>
       </MemoryRouter>,

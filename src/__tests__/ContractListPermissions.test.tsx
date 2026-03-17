@@ -79,7 +79,7 @@ afterEach(() => {
 
 describe("ContractListPage permission filtering", () => {
   it("hides New Contract button and action buttons when user lacks contracts:write", async () => {
-    mockUsePermissions.mockReturnValue(["contracts:read"]);
+    mockUsePermissions.mockReturnValue(["hhh:contracts:read"]);
 
     renderPage();
     await screen.findByText("Contratos");
@@ -90,7 +90,7 @@ describe("ContractListPage permission filtering", () => {
   });
 
   it("shows New Contract button and action buttons when user has contracts:write", async () => {
-    mockUsePermissions.mockReturnValue(["contracts:read", "contracts:write"]);
+    mockUsePermissions.mockReturnValue(["hhh:contracts:read", "hhh:contracts:write"]);
 
     renderPage();
     await screen.findByText("Contratos");

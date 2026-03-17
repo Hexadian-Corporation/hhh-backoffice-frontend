@@ -74,7 +74,7 @@ function formatDeadline(iso: string): string {
 export default function ContractListPage() {
   const navigate = useNavigate();
   const permissions = usePermissions();
-  const canWrite = hasPermission(permissions, "contracts:write");
+  const canWrite = hasPermission(permissions, "hhh:contracts:write");
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

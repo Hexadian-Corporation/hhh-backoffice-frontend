@@ -9,7 +9,7 @@ import { usePermissions, hasPermission } from "@/lib/permissions";
 export default function CommodityListPage() {
   const navigate = useNavigate();
   const permissions = usePermissions();
-  const canWrite = hasPermission(permissions, "commodities:write");
+  const canWrite = hasPermission(permissions, "hhh:commodities:write");
   const [commodities, setCommodities] = useState<Commodity[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
