@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 import { ShieldX } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 
 export default function InsufficientPermissionsPage() {
   return (
@@ -11,9 +11,9 @@ export default function InsufficientPermissionsPage() {
         You do not have the required permissions to access this page. Contact an
         administrator if you believe this is an error.
       </p>
-      <Button asChild variant="outline">
-        <Link to="/">Back to Dashboard</Link>
-      </Button>
+      <Link to="/" className={buttonVariants({ variant: "outline" })}>
+        Back to Dashboard
+      </Link>
     </div>
   );
 }
