@@ -4,9 +4,12 @@ import { Plus, Trash2 } from "lucide-react";
 import type { Commodity } from "@/types/commodity";
 import { listCommodities, deleteCommodity } from "@/api/commodities";
 import { Button } from "@/components/ui/button";
+import { usePermissions, hasPermission } from "@/lib/permissions";
 
 export default function CommodityListPage() {
   const navigate = useNavigate();
+  const permissions = usePermissions();
+  const canWrite = hasPermission(permissions, "hhh:commodities:write");
   const [commodities, setCommodities] = useState<Commodity[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -74,10 +77,12 @@ export default function CommodityListPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Mercancías</h1>
+        {canWrite && (
         <Button onClick={() => navigate("/commodities/new")}>
           <Plus className="h-4 w-4" />
           Nueva mercancía
         </Button>
+        )}
       </div>
 
       {/* Table */}
@@ -107,6 +112,7 @@ export default function CommodityListPage() {
                   <td className="px-4 py-3">{commodity.name}</td>
                   <td className="px-4 py-3">{commodity.code}</td>
                   <td className="px-4 py-3 text-right">
+                    {canWrite && (
                     <Button
                       variant="ghost"
                       size="icon"
@@ -118,6 +124,7 @@ export default function CommodityListPage() {
                     >
                       <Trash2 className="h-4 w-4 text-[var(--color-danger)]" />
                     </Button>
+                    )}
                   </td>
                 </tr>
               ))

@@ -17,6 +17,18 @@ vi.mock("@/api/auth", () => ({
   revokeToken: vi.fn(),
 }))
 
+vi.mock("@/lib/permissions", () => ({
+  usePermissions: () => [
+    "hhh:contracts:write",
+    "hhh:locations:write",
+    "hhh:commodities:write",
+    "auth:users:read",
+  ],
+  hasPermission: () => true,
+  hasAnyPermission: () => true,
+}))
+
+
 describe("RootLayout", () => {
   it("renders the sidebar with branding and navigation links", () => {
     render(

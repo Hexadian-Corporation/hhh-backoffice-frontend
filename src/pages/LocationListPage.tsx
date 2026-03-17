@@ -4,9 +4,12 @@ import { Plus, Trash2 } from "lucide-react";
 import type { Location } from "@/types/location";
 import { listLocations, deleteLocation } from "@/api/locations";
 import { Button } from "@/components/ui/button";
+import { usePermissions, hasPermission } from "@/lib/permissions";
 
 export default function LocationListPage() {
   const navigate = useNavigate();
+  const permissions = usePermissions();
+  const canWrite = hasPermission(permissions, "hhh:locations:write");
   const [locations, setLocations] = useState<Location[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -74,10 +77,12 @@ export default function LocationListPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Ubicaciones</h1>
+        {canWrite && (
         <Button onClick={() => navigate("/locations/new")}>
           <Plus className="h-4 w-4" />
           Nueva ubicación
         </Button>
+        )}
       </div>
 
       {/* Table */}
@@ -117,6 +122,7 @@ export default function LocationListPage() {
                       : "No"}
                   </td>
                   <td className="px-4 py-3 text-right">
+                    {canWrite && (
                     <Button
                       variant="ghost"
                       size="icon"
@@ -128,6 +134,7 @@ export default function LocationListPage() {
                     >
                       <Trash2 className="h-4 w-4 text-[var(--color-danger)]" />
                     </Button>
+                    )}
                   </td>
                 </tr>
               ))
