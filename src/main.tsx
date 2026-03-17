@@ -32,7 +32,7 @@ const router = createBrowserRouter([
       { index: true, element: <DashboardPage /> },
       { path: 'contracts', element: <PermissionGuard required={['hhh:contracts:read']}><ContractListPage /></PermissionGuard> },
       { path: 'contracts/new', element: <PermissionGuard required={['hhh:contracts:write']}><ContractCreatePage /></PermissionGuard> },
-      { path: 'contracts/:id', element: <PermissionGuard required={['hhh:contracts:read']}><ContractEditPage /></PermissionGuard> },
+      { path: 'contracts/:id', element: <PermissionGuard required={['hhh:contracts:write']}><ContractEditPage /></PermissionGuard> },
       { path: 'locations', element: <PermissionGuard required={['hhh:locations:read']}><LocationListPage /></PermissionGuard> },
       { path: 'locations/new', element: <PermissionGuard required={['hhh:locations:write']}><LocationEditPage /></PermissionGuard> },
       { path: 'locations/:id', element: <PermissionGuard required={['hhh:locations:read']}><LocationEditPage /></PermissionGuard> },
