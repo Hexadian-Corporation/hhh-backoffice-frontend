@@ -26,7 +26,7 @@ afterEach(() => {
 
 describe('AuthGuard', () => {
   it('renders children when a valid token exists', async () => {
-    const token = makeJwt({ exp: Math.floor(Date.now() / 1000) + 3600 });
+    const token = makeJwt({ exp: Math.floor(Date.now() / 1000) + 3600, permissions: ['hhh:locations:write'] });
     authLib.storeTokens(token, 'refresh');
 
     render(
@@ -57,7 +57,7 @@ describe('AuthGuard', () => {
 
   it('refreshes expired token and renders children', async () => {
     const expiredToken = makeJwt({ exp: Math.floor(Date.now() / 1000) - 60 });
-    const newToken = makeJwt({ exp: Math.floor(Date.now() / 1000) + 3600 });
+    const newToken = makeJwt({ exp: Math.floor(Date.now() / 1000) + 3600, permissions: ['hhh:locations:write'] });
     authLib.storeTokens(expiredToken, 'valid-refresh');
 
     vi.mocked(authApi.refreshToken).mockResolvedValueOnce({

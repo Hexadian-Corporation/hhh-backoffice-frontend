@@ -7,8 +7,18 @@ import {
   storeTokens,
   clearTokens,
   redirectToLogin,
+  hasAnyPermission,
 } from '@/lib/auth';
 import { refreshToken } from '@/api/auth';
+import ForbiddenPage from '@/pages/ForbiddenPage';
+
+const BACKOFFICE_PERMISSIONS = [
+  "hhh:locations:write",
+  "hhh:commodities:write",
+  "hhh:ships:write",
+  "hhh:graphs:write",
+  "hhh:routes:write",
+];
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -55,6 +65,10 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
         <p className="text-[var(--color-text-muted)]">Loading…</p>
       </div>
     );
+  }
+
+  if (!hasAnyPermission(BACKOFFICE_PERMISSIONS)) {
+    return <ForbiddenPage />;
   }
 
   return <>{children}</>;

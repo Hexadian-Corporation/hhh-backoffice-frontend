@@ -79,6 +79,18 @@ export function clearReturnUrl(): void {
 
 const AUTH_PORTAL_URL = import.meta.env.VITE_AUTH_PORTAL_URL ?? 'http://localhost:3003';
 
+export function hasPermission(permission: string): boolean {
+  const ctx = getUserContext();
+  if (!ctx) return false;
+  return ctx.permissions.includes(permission);
+}
+
+export function hasAnyPermission(required: string[]): boolean {
+  const ctx = getUserContext();
+  if (!ctx) return false;
+  return required.some((p) => ctx.permissions.includes(p));
+}
+
 export function redirectToLogin(returnUrl?: string): void {
   if (returnUrl) {
     storeReturnUrl(returnUrl);

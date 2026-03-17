@@ -1,14 +1,14 @@
 import { NavLink, Outlet } from "react-router"
 import { LayoutDashboard, FileText, MapPin, Package, Users, LogOut, User } from "lucide-react"
-import { getUserContext, clearTokens, getRefreshToken, redirectToLogin } from "@/lib/auth"
+import { getUserContext, clearTokens, getRefreshToken, redirectToLogin, hasAnyPermission } from "@/lib/auth"
 import { revokeToken } from "@/api/auth"
 
 const navItems = [
-  { to: "/", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/contracts", label: "Contratos", icon: FileText },
-  { to: "/locations", label: "Ubicaciones", icon: MapPin },
-  { to: "/commodities", label: "Mercancías", icon: Package },
-  { to: "/users", label: "Users", icon: Users },
+  { to: "/", label: "Dashboard", icon: LayoutDashboard, permissions: [] as string[] },
+  { to: "/contracts", label: "Contratos", icon: FileText, permissions: ["hhh:contracts:write"] },
+  { to: "/locations", label: "Ubicaciones", icon: MapPin, permissions: ["hhh:locations:write"] },
+  { to: "/commodities", label: "Mercancías", icon: Package, permissions: ["hhh:commodities:write"] },
+  { to: "/users", label: "Users", icon: Users, permissions: ["auth:users:read"] },
 ]
 
 export default function RootLayout() {
@@ -41,7 +41,9 @@ export default function RootLayout() {
           </span>
         </div>
         <nav className="flex-1 p-2 space-y-1">
-          {navItems.map(({ to, label, icon: Icon }) => (
+          {navItems
+            .filter(({ permissions }) => permissions.length === 0 || hasAnyPermission(permissions))
+            .map(({ to, label, icon: Icon }) => (
             <NavLink
               key={to}
               to={to}

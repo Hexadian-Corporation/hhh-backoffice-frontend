@@ -94,7 +94,7 @@ describe('getUserContext', () => {
       username: 'pilotx',
       groups: ['admins'],
       roles: ['admin'],
-      permissions: ['contracts:write'],
+      permissions: ['hhh:contracts:write'],
       rsi_handle: 'PilotX',
       rsi_verified: true,
     });
@@ -106,7 +106,7 @@ describe('getUserContext', () => {
       username: 'pilotx',
       groups: ['admins'],
       roles: ['admin'],
-      permissions: ['contracts:write'],
+      permissions: ['hhh:contracts:write'],
       rsiHandle: 'PilotX',
       rsiVerified: true,
     });

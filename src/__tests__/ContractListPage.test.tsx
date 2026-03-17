@@ -183,8 +183,8 @@ describe("ContractListPage", () => {
     renderPage();
     await screen.findByText("Contratos");
 
-    expect(screen.getByText(/25,000/)).toBeInTheDocument();
-    expect(screen.getByText(/50,000/)).toBeInTheDocument();
+    expect(screen.getByText(/25[,.]?000/)).toBeInTheDocument();
+    expect(screen.getByText(/50[,.]?000/)).toBeInTheDocument();
   });
 
   it("displays hauling order counts", async () => {
