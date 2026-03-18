@@ -35,11 +35,9 @@ src/
 - shadcn/ui components in `src/components/ui/`
 - Vitest for testing with `@vitest/coverage-v8`
 
-## UI Design — Hexadian Branding
+## UI Styling
 
-Dark space theme with CSS custom properties:
-- Background: `#0a0e17` / Surface: `#111827` / Accent: `#06b6d4` (cyan)
-- Status badges: draft (gray), active (cyan), expired (amber), cancelled (red)
+See `hexadian-ui-style.instructions.md` for the canonical Hexadian corporate style guide (color palette, layout, typography, components, Tailwind classes).
 
 ## Issue & PR Title Format
 
