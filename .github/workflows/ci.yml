@@ -71,6 +71,7 @@ jobs:
 
               let desc = job.name;
               let fix = '';
+              let summary = '';
               if (job.name.includes('Lint')) {
                 desc = 'Lint & Type Check (ESLint + tsc --noEmit)';
                 fix = [
@@ -78,6 +79,12 @@ jobs:
                   '- Run `npx tsc --noEmit` locally to see type errors',
                   '- Check for missing imports, wrong types, or unused variables',
                 ].join('\n');
+                const eslintMatch = clean.match(/(\d+) problems?/);
+                const tsMatch = clean.match(/error TS/g);
+                const parts = [];
+                if (eslintMatch) parts.push(`${eslintMatch[1]} ESLint problems`);
+                if (tsMatch) parts.push(`${tsMatch.length} TypeScript errors`);
+                if (parts.length) summary = parts.join(', ');
               } else if (job.name.includes('Tests') || job.name.includes('Coverage')) {
                 desc = 'Tests & Coverage (vitest + diff-cover \u2265 90%)';
                 fix = [
@@ -85,9 +92,22 @@ jobs:
                   '- If diff-cover failed, add tests for uncovered changed lines',
                   '- Check that mocks and test fixtures match current code',
                 ].join('\n');
+                const failMatch = clean.match(/Tests\s+(\d+) failed/);
+                const passMatch = clean.match(/(\d+) passed/);
+                const covMatch = clean.match(/Diff Coverage: (\d+(?:\.\d+)?)%/);
+                const failCov = clean.match(/Failure: (\d+(?:\.\d+)?)% is below (\d+)%/);
+                const parts = [];
+                if (failMatch) {
+                  const p = passMatch ? ` (${passMatch[1]} passed)` : '';
+                  parts.push(`${failMatch[1]} tests failed${p}`);
+                }
+                if (failCov) parts.push(`diff-cover: ${failCov[1]}% (required \u2265${failCov[2]}%)`);
+                else if (covMatch) parts.push(`diff-cover: ${covMatch[1]}%`);
+                if (parts.length) summary = parts.join(' \u00b7 ');
               }
 
               report += `### \u274c ${desc}\n\n`;
+              if (summary) report += `> **Cause:** ${summary}\n\n`;
               if (fix) report += `**Suggested fixes:**\n${fix}\n\n`;
               report += `<details><summary>Last 60 lines of log output</summary>\n\n\`\`\`\n${tail}\n\`\`\`\n\n</details>\n\n`;
             }
