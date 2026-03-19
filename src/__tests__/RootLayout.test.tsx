@@ -1,6 +1,33 @@
 import { render, screen } from "@testing-library/react"
 import { MemoryRouter } from "react-router"
+import { vi } from "vitest"
 import RootLayout from "@/layouts/RootLayout"
+
+vi.mock("@/lib/auth", () => ({
+  getUserContext: vi.fn(() => ({ username: "admin", permissions: [] })),
+  getAccessToken: vi.fn(() => null),
+  clearTokens: vi.fn(),
+  getRefreshToken: vi.fn(() => null),
+  redirectToLogin: vi.fn(),
+  hasAnyPermission: vi.fn(() => true),
+  hasPermission: vi.fn(() => true),
+}))
+
+vi.mock("@/api/auth", () => ({
+  revokeToken: vi.fn(),
+}))
+
+vi.mock("@/lib/permissions", () => ({
+  usePermissions: () => [
+    "hhh:contracts:write",
+    "hhh:locations:write",
+    "hhh:commodities:write",
+    "auth:users:read",
+  ],
+  hasPermission: () => true,
+  hasAnyPermission: () => true,
+}))
+
 
 describe("RootLayout", () => {
   it("renders the sidebar with branding and navigation links", () => {

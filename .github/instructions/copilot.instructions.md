@@ -1,4 +1,6 @@
-<critical>Note: This is a living document and will be updated as we refine our processes. Always refer back to this for the latest guidelines. Update whenever necessary.</critical>
+﻿<critical>Note: This is a living document and will be updated as we refine our processes. Always refer back to this for the latest guidelines. Update whenever necessary.</critical>
+
+<critical>**Development Workflow:** All changes go through a branch + PR — no direct commits to `main` unless explicitly instructed. See `.github/instructions/development-workflow.instructions.md`.</critical>
 
 # Copilot Instructions — hhh-backoffice-frontend
 
@@ -33,11 +35,9 @@ src/
 - shadcn/ui components in `src/components/ui/`
 - Vitest for testing with `@vitest/coverage-v8`
 
-## UI Design — Hexadian Branding
+## UI Styling
 
-Dark space theme with CSS custom properties:
-- Background: `#0a0e17` / Surface: `#111827` / Accent: `#06b6d4` (cyan)
-- Status badges: draft (gray), active (cyan), expired (amber), cancelled (red)
+See `hexadian-ui-style.instructions.md` for the canonical Hexadian corporate style guide (color palette, layout, typography, components, Tailwind classes).
 
 ## Issue & PR Title Format
 
@@ -56,6 +56,40 @@ The issue title and PR title must be **identical**. PR body must include `Fixes 
 - Vitest with ≥90% coverage on changed lines (`diff-cover` via `pipx`)
 - Squash merge only — PR title becomes the commit message
 
+## CI & Branch Protection
+
+**Required status checks** (all with `app_id: 15368` — GitHub Actions):
+
+| Check | What it does |
+|-------|--------------|
+| `Lint & Type Check` | `npm run lint` + `npx tsc --noEmit` |
+| `Tests & Coverage` | `vitest` + `diff-cover` (≥90 % on changed lines) |
+| `Validate PR Title` | Conventional-commit format |
+| `Secret Scan` | Gitleaks |
+
+> **Critical:** Required status checks must always use `app_id: 15368` (GitHub Actions). Using `app_id: null` causes checks to freeze as "Expected — Waiting for status" for any check name not previously reported on `main`. See BUG-011.
+
+## Auth Integration — `@hexadian-corporation/auth-react`
+
+Authentication is provided by the **hexadian-auth-client** SDK (`Hexadian-Corporation/hexadian-auth-client`), a TypeScript monorepo published to GitHub Packages.
+
+| Package | Purpose |
+|---------|----------|
+| `@hexadian-corporation/auth-core` | OAuth client, token storage, JWT decode, auth events (pure TS, zero framework deps) |
+| `@hexadian-corporation/auth-react` | React 18/19 integration: `AuthProvider`, `useAuth`, `usePermissions`, `ProtectedRoute` |
+
+**Installation:**
+```bash
+npm install @hexadian-corporation/auth-react
+```
+
+**Usage:**
+```tsx
+import { AuthProvider, useAuth, usePermissions, ProtectedRoute } from '@hexadian-corporation/auth-react';
+```
+
+> **Migration (M5):** Inline auth code (`src/lib/`, `src/api/auth.ts`, token helpers, auth context) will be replaced by these packages. See `hexadian-auth-client` issues AC-15 (hhh-backoffice-frontend#59).
+
 ## Tooling
 
 | Action | Command |
@@ -71,4 +105,10 @@ The issue title and PR title must be **identical**. PR body must include `Fixes 
 
 - **Keep the README up to date.** When you add, remove, or change commands, environment variables, API endpoints, or architecture — update `README.md`. The README is the source of truth for developers.
 - **Keep the monorepo CLI service registry up to date.** When adding or removing a service, update `SERVICES`, `FRONTENDS`, `COMPOSE_SERVICE_MAP`, and `SERVICE_ALIASES` in `hexadian-hauling-helper/hhh_cli/__init__.py`, plus the `docker-compose.yml` entry.
-- **Keep GitHub workflows in sync with the canonical patterns.** See `gh-workflow.instructions.md` for the authoritative workflow templates (`auto-status.yml`, `notify-main.yml`, etc.) and the full checklist for project board field IDs.
+
+## Organization Profile Maintenance
+
+- **Keep the org profile README up to date.** When repositories, ports, architecture, workflows, security policy, or ownership change, update Hexadian-Corporation/.github/profile/README.md in the public .github repo.
+- **Treat the org profile as canonical org summary.** Ensure descriptions in this repo remain consistent with the organization profile README.
+
+Remember, before finishing: resolve any merge conflict and merge source (PR origin and destination) branch into current one.
