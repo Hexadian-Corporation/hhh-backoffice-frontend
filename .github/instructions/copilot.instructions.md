@@ -69,6 +69,27 @@ The issue title and PR title must be **identical**. PR body must include `Fixes 
 
 > **Critical:** Required status checks must always use `app_id: 15368` (GitHub Actions). Using `app_id: null` causes checks to freeze as "Expected — Waiting for status" for any check name not previously reported on `main`. See BUG-011.
 
+## Auth Integration — `@hexadian-corporation/auth-react`
+
+Authentication is provided by the **hexadian-auth-client** SDK (`Hexadian-Corporation/hexadian-auth-client`), a TypeScript monorepo published to GitHub Packages.
+
+| Package | Purpose |
+|---------|----------|
+| `@hexadian-corporation/auth-core` | OAuth client, token storage, JWT decode, auth events (pure TS, zero framework deps) |
+| `@hexadian-corporation/auth-react` | React 18/19 integration: `AuthProvider`, `useAuth`, `usePermissions`, `ProtectedRoute` |
+
+**Installation:**
+```bash
+npm install @hexadian-corporation/auth-react
+```
+
+**Usage:**
+```tsx
+import { AuthProvider, useAuth, usePermissions, ProtectedRoute } from '@hexadian-corporation/auth-react';
+```
+
+> **Migration (M5):** Inline auth code (`src/lib/`, `src/api/auth.ts`, token helpers, auth context) will be replaced by these packages. See `hexadian-auth-client` issues AC-15 (hhh-backoffice-frontend#59).
+
 ## Tooling
 
 | Action | Command |
