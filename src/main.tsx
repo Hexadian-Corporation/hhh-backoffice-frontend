@@ -13,6 +13,8 @@ import LocationListPage from './pages/LocationListPage.tsx'
 import LocationEditPage from './pages/LocationEditPage.tsx'
 import CommodityListPage from './pages/CommodityListPage.tsx'
 import CommodityEditPage from './pages/CommodityEditPage.tsx'
+import ShipListPage from './pages/ShipListPage.tsx'
+import ShipEditPage from './pages/ShipEditPage.tsx'
 import UsersPage from './pages/UsersPage.tsx'
 import CallbackPage from './pages/CallbackPage.tsx'
 
@@ -39,6 +41,9 @@ const router = createBrowserRouter([
       { path: 'commodities', element: <PermissionGuard required={['hhh:commodities:read']}><CommodityListPage /></PermissionGuard> },
       { path: 'commodities/new', element: <PermissionGuard required={['hhh:commodities:write']}><CommodityEditPage /></PermissionGuard> },
       { path: 'commodities/:id', element: <PermissionGuard required={['hhh:commodities:write']}><CommodityEditPage /></PermissionGuard> },
+      { path: 'ships', element: <PermissionGuard required={['hhh:ships:read']}><ShipListPage /></PermissionGuard> },
+      { path: 'ships/new', element: <PermissionGuard required={['hhh:ships:write']}><ShipEditPage /></PermissionGuard> },
+      { path: 'ships/:id', element: <PermissionGuard required={['hhh:ships:write']}><ShipEditPage /></PermissionGuard> },
       { path: 'users', element: <PermissionGuard required={['auth:users:read']}><UsersPage /></PermissionGuard> },
     ],
   },
