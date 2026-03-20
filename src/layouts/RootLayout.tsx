@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from "react-router"
-import { LayoutDashboard, FileText, MapPin, Package, Users, LogOut, User } from "lucide-react"
+import { LayoutDashboard, FileText, MapPin, Package, Rocket, Users, LogOut, User } from "lucide-react"
 import { getUserContext, clearTokens, getRefreshToken, redirectToLogin } from "@/lib/auth"
 import { revokeToken } from "@/api/auth"
 import { usePermissions, hasAnyPermission } from "@/lib/permissions"
@@ -9,6 +9,7 @@ const navItems = [
   { to: "/contracts", label: "Contratos", icon: FileText, permissions: ["hhh:contracts:write"] },
   { to: "/locations", label: "Ubicaciones", icon: MapPin, permissions: ["hhh:locations:write"] },
   { to: "/commodities", label: "Mercancías", icon: Package, permissions: ["hhh:commodities:write"] },
+  { to: "/ships", label: "Naves", icon: Rocket, permissions: ["hhh:ships:write"] },
   { to: "/users", label: "Users", icon: Users, permissions: ["auth:users:read"] },
 ]
 

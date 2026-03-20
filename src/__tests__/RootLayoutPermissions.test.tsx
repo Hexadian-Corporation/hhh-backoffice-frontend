@@ -64,6 +64,7 @@ describe("RootLayout permission filtering", () => {
       "hhh:contracts:write",
       "hhh:locations:write",
       "hhh:commodities:write",
+      "hhh:ships:write",
       "auth:users:read",
     ]);
 
@@ -77,6 +78,7 @@ describe("RootLayout permission filtering", () => {
     expect(screen.getByText("Contratos")).toBeInTheDocument();
     expect(screen.getByText("Ubicaciones")).toBeInTheDocument();
     expect(screen.getByText("Mercancías")).toBeInTheDocument();
+    expect(screen.getByText("Naves")).toBeInTheDocument();
     expect(screen.getByText("Users")).toBeInTheDocument();
   });
 });
