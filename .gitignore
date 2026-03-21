@@ -9,6 +9,7 @@ lerna-debug.log*
 
 node_modules
 dist
+!vendor/*/dist
 dist-ssr
 *.local
 
@@ -33,4 +34,3 @@ coverage
 !.github/instructions/hexadian-ui-style.instructions.md
 !.github/instructions/bug-history.instructions.md
 !.github/instructions/gh-workflow.instructions.md
-dist/
