@@ -305,6 +305,52 @@ describe("LocationEditPage - Edit mode", () => {
   });
 });
 
+describe("LocationEditPage - Tabs", () => {
+  it("shows Details and Distances tabs when editing an existing location", async () => {
+    renderEditPage();
+    await screen.findByText("Edit Location");
+
+    expect(screen.getByText("Details")).toBeInTheDocument();
+    expect(screen.getByText("Distances")).toBeInTheDocument();
+  });
+
+  it("does not show tabs when creating a new location", () => {
+    renderNewPage();
+    expect(screen.getByText("New Location")).toBeInTheDocument();
+
+    expect(screen.queryByText("Details")).not.toBeInTheDocument();
+    expect(screen.queryByText("Distances")).not.toBeInTheDocument();
+  });
+
+  it("defaults to Details tab showing the form", async () => {
+    renderEditPage();
+    await screen.findByText("Edit Location");
+
+    expect(screen.getByLabelText("Name")).toBeInTheDocument();
+  });
+
+  it("switches to Distances tab when clicked", async () => {
+    renderEditPage();
+    await screen.findByText("Edit Location");
+
+    await userEvent.click(screen.getByText("Distances"));
+
+    // Form should be hidden
+    expect(screen.queryByLabelText("Name")).not.toBeInTheDocument();
+  });
+
+  it("switches back to Details tab", async () => {
+    renderEditPage();
+    await screen.findByText("Edit Location");
+
+    await userEvent.click(screen.getByText("Distances"));
+    expect(screen.queryByLabelText("Name")).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByText("Details"));
+    expect(screen.getByLabelText("Name")).toBeInTheDocument();
+  });
+});
+
 describe("LocationEditPage - Create mode", () => {
   it("renders New Location heading without loading", async () => {
     renderNewPage();

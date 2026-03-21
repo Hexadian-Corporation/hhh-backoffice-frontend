@@ -11,6 +11,15 @@ import {
 } from "@/api/locations";
 import { Button } from "@/components/ui/button";
 import SystemSelector from "@/components/location/SystemSelector";
+import DistancesTab from "@/components/location/DistancesTab";
+import { cn } from "@/lib/utils";
+
+type TabKey = "details" | "distances";
+
+const TABS: { key: TabKey; label: string }[] = [
+  { key: "details", label: "Details" },
+  { key: "distances", label: "Distances" },
+];
 
 const LOCATION_TYPES = [
   "system",
@@ -48,6 +57,7 @@ export default function LocationEditPage() {
   const isNew = !id;
 
   const [form, setForm] = useState<LocationCreate>(INITIAL_FORM);
+  const [activeTab, setActiveTab] = useState<TabKey>("details");
   const [loading, setLoading] = useState(!isNew);
   const [notFound, setNotFound] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -233,7 +243,34 @@ export default function LocationEditPage() {
         </div>
       </div>
 
-      {/* Form */}
+      {/* Tabs (only on edit) */}
+      {!isNew && (
+        <div className="mb-6 flex gap-1 border-b border-[var(--color-border)]">
+          {TABS.map(({ key, label }) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setActiveTab(key)}
+              className={cn(
+                "px-4 py-2 text-sm font-medium transition-colors -mb-px border-b-2",
+                activeTab === key
+                  ? "border-[var(--color-accent)] text-[var(--color-accent)]"
+                  : "border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]",
+              )}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Distances Tab (only on edit) */}
+      {!isNew && activeTab === "distances" && (
+        <DistancesTab locationId={id!} />
+      )}
+
+      {/* Details Form */}
+      {(isNew || activeTab === "details") && (
       <div className="max-w-2xl space-y-4">
         {/* Name */}
         <div>
@@ -483,6 +520,7 @@ export default function LocationEditPage() {
           </div>
         )}
       </div>
+      )}
     </div>
   );
 }
