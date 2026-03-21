@@ -2,15 +2,22 @@ import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { vi, type Mock } from "vitest";
 
-const mockUsePermissions = vi.fn<() => string[]>(() => []);
-const mockHasPermission = vi.fn(
-  (perms: string[], req: string) => perms.includes(req),
-);
+const mockHasPermission = vi.fn<(p: string) => boolean>(() => false);
+const mockHasAnyPermission = vi.fn<(ps: string[]) => boolean>(() => false);
 
-vi.mock("@/lib/permissions", () => ({
-  usePermissions: (...args: unknown[]) => mockUsePermissions(...(args as [])),
-  hasPermission: (...args: unknown[]) => mockHasPermission(...(args as [string[], string])),
-  hasAnyPermission: () => true,
+vi.mock("@hexadian-corporation/auth-react", () => ({
+  useAuth: () => ({
+    user: { username: "admin", permissions: [] },
+    isAuthenticated: true,
+    isLoading: false,
+    login: vi.fn(),
+    logout: vi.fn(),
+    tryRefresh: vi.fn(),
+    authFetch: vi.fn(),
+    hasPermission: (...args: unknown[]) => mockHasPermission(...(args as [string])),
+    hasAnyPermission: (...args: unknown[]) => mockHasAnyPermission(...(args as [string[]])),
+    handleCallback: vi.fn(),
+  }),
 }));
 
 vi.mock("@/api/contracts", () => ({
@@ -44,7 +51,9 @@ afterEach(() => {
 
 describe("DashboardPage permission filtering", () => {
   it("hides quick action links when user lacks write permissions", () => {
-    mockUsePermissions.mockReturnValue(["hhh:contracts:read", "hhh:locations:read", "hhh:commodities:read"]);
+    const perms = ["hhh:contracts:read", "hhh:locations:read", "hhh:commodities:read"];
+    mockHasPermission.mockImplementation((p) => perms.includes(p));
+    mockHasAnyPermission.mockImplementation((ps) => ps.some((p) => perms.includes(p)));
 
     render(
       <MemoryRouter>
@@ -58,11 +67,13 @@ describe("DashboardPage permission filtering", () => {
   });
 
   it("shows quick action links when user has write permissions", () => {
-    mockUsePermissions.mockReturnValue([
+    const perms = [
       "hhh:contracts:read", "hhh:contracts:write",
       "hhh:locations:read", "hhh:locations:write",
       "hhh:commodities:read", "hhh:commodities:write",
-    ]);
+    ];
+    mockHasPermission.mockImplementation((p) => perms.includes(p));
+    mockHasAnyPermission.mockImplementation((ps) => ps.some((p) => perms.includes(p)));
 
     render(
       <MemoryRouter>
@@ -76,7 +87,9 @@ describe("DashboardPage permission filtering", () => {
   });
 
   it("shows only permitted quick action links", () => {
-    mockUsePermissions.mockReturnValue(["hhh:contracts:write", "hhh:locations:read"]);
+    const perms = ["hhh:contracts:write", "hhh:locations:read"];
+    mockHasPermission.mockImplementation((p) => perms.includes(p));
+    mockHasAnyPermission.mockImplementation((ps) => ps.some((p) => perms.includes(p)));
 
     render(
       <MemoryRouter>

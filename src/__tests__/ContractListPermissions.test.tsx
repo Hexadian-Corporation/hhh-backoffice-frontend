@@ -3,15 +3,22 @@ import { MemoryRouter, Route, Routes } from "react-router";
 import { vi, type Mock } from "vitest";
 import type { Contract } from "@/types/contract";
 
-const mockUsePermissions = vi.fn<() => string[]>(() => []);
-const mockHasPermission = vi.fn(
-  (perms: string[], req: string) => perms.includes(req),
-);
+const mockHasPermission = vi.fn<(p: string) => boolean>(() => false);
+const mockHasAnyPermission = vi.fn<(ps: string[]) => boolean>(() => false);
 
-vi.mock("@/lib/permissions", () => ({
-  usePermissions: (...args: unknown[]) => mockUsePermissions(...(args as [])),
-  hasPermission: (...args: unknown[]) => mockHasPermission(...(args as [string[], string])),
-  hasAnyPermission: () => true,
+vi.mock("@hexadian-corporation/auth-react", () => ({
+  useAuth: () => ({
+    user: { username: "admin", permissions: [] },
+    isAuthenticated: true,
+    isLoading: false,
+    login: vi.fn(),
+    logout: vi.fn(),
+    tryRefresh: vi.fn(),
+    authFetch: vi.fn(),
+    hasPermission: (...args: unknown[]) => mockHasPermission(...(args as [string])),
+    hasAnyPermission: (...args: unknown[]) => mockHasAnyPermission(...(args as [string[]])),
+    handleCallback: vi.fn(),
+  }),
 }));
 
 import ContractListPage from "@/pages/ContractListPage";
@@ -79,7 +86,9 @@ afterEach(() => {
 
 describe("ContractListPage permission filtering", () => {
   it("hides New Contract button and action buttons when user lacks contracts:write", async () => {
-    mockUsePermissions.mockReturnValue(["hhh:contracts:read"]);
+    const perms = ["hhh:contracts:read"];
+    mockHasPermission.mockImplementation((p) => perms.includes(p));
+    mockHasAnyPermission.mockImplementation((ps) => ps.some((p) => perms.includes(p)));
 
     renderPage();
     await screen.findByText("Contratos");
@@ -90,7 +99,9 @@ describe("ContractListPage permission filtering", () => {
   });
 
   it("shows New Contract button and action buttons when user has contracts:write", async () => {
-    mockUsePermissions.mockReturnValue(["hhh:contracts:read", "hhh:contracts:write"]);
+    const perms = ["hhh:contracts:read", "hhh:contracts:write"];
+    mockHasPermission.mockImplementation((p) => perms.includes(p));
+    mockHasAnyPermission.mockImplementation((ps) => ps.some((p) => perms.includes(p)));
 
     renderPage();
     await screen.findByText("Contratos");

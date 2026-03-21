@@ -3,15 +3,22 @@ import { MemoryRouter, Route, Routes } from "react-router";
 import { vi, type Mock } from "vitest";
 import type { User } from "@/types/user";
 
-const mockUsePermissions = vi.fn<() => string[]>(() => []);
-const mockHasPermission = vi.fn(
-  (perms: string[], req: string) => perms.includes(req),
-);
+const mockHasPermission = vi.fn<(p: string) => boolean>(() => false);
+const mockHasAnyPermission = vi.fn<(ps: string[]) => boolean>(() => false);
 
-vi.mock("@/lib/permissions", () => ({
-  usePermissions: (...args: unknown[]) => mockUsePermissions(...(args as [])),
-  hasPermission: (...args: unknown[]) => mockHasPermission(...(args as [string[], string])),
-  hasAnyPermission: () => true,
+vi.mock("@hexadian-corporation/auth-react", () => ({
+  useAuth: () => ({
+    user: { username: "admin", permissions: [] },
+    isAuthenticated: true,
+    isLoading: false,
+    login: vi.fn(),
+    logout: vi.fn(),
+    tryRefresh: vi.fn(),
+    authFetch: vi.fn(),
+    hasPermission: (...args: unknown[]) => mockHasPermission(...(args as [string])),
+    hasAnyPermission: (...args: unknown[]) => mockHasAnyPermission(...(args as [string[]])),
+    handleCallback: vi.fn(),
+  }),
 }));
 
 import UsersPage from "@/pages/UsersPage";
@@ -67,7 +74,9 @@ afterEach(() => {
 
 describe("UsersPage permission filtering", () => {
   it("hides verify buttons when user lacks users:admin", async () => {
-    mockUsePermissions.mockReturnValue(["auth:users:read"]);
+    const perms = ["auth:users:read"];
+    mockHasPermission.mockImplementation((p) => perms.includes(p));
+    mockHasAnyPermission.mockImplementation((ps) => ps.some((p) => perms.includes(p)));
 
     renderPage();
     await screen.findByText("testpilot");
@@ -77,7 +86,9 @@ describe("UsersPage permission filtering", () => {
   });
 
   it("shows verify buttons when user has users:admin", async () => {
-    mockUsePermissions.mockReturnValue(["auth:users:read", "auth:users:admin"]);
+    const perms = ["auth:users:read", "auth:users:admin"];
+    mockHasPermission.mockImplementation((p) => perms.includes(p));
+    mockHasAnyPermission.mockImplementation((ps) => ps.some((p) => perms.includes(p)));
 
     renderPage();
     await screen.findByText("testpilot");
