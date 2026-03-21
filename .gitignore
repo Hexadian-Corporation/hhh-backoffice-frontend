@@ -32,4 +32,5 @@ coverage
 !.github/instructions/development-workflow.instructions.md
 !.github/instructions/hexadian-ui-style.instructions.md
 !.github/instructions/bug-history.instructions.md
-!.github/instructions/gh-workflow.instructions.mddist/
+!.github/instructions/gh-workflow.instructions.md
+dist/
