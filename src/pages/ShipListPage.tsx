@@ -4,12 +4,12 @@ import { Plus, Trash2 } from "lucide-react";
 import type { Ship } from "@/types/ship";
 import { listShips, deleteShip } from "@/api/ships";
 import { Button } from "@/components/ui/button";
-import { usePermissions, hasPermission } from "@/lib/permissions";
+import { useAuth } from "@hexadian-corporation/auth-react";
 
 export default function ShipListPage() {
   const navigate = useNavigate();
-  const permissions = usePermissions();
-  const canWrite = hasPermission(permissions, "hhh:ships:write");
+  const { hasPermission } = useAuth();
+  const canWrite = hasPermission("hhh:ships:write");
   const [ships, setShips] = useState<Ship[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

@@ -1,0 +1,16 @@
+{
+  "name": "@hexadian-corporation/auth-react",
+  "version": "0.0.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
+  "dependencies": {
+    "@hexadian-corporation/auth-core": "*"
+  },
+  "peerDependencies": {
+    "react": "^18 || ^19",
+    "react-dom": "^18 || ^19"
+  },
+  "license": "SEE LICENSE IN LICENSE"
+}

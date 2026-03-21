@@ -9,6 +9,12 @@ import {
 } from '@/api/ships';
 import type { Ship, ShipCreate, ShipUpdate } from '@/types/ship';
 
+vi.mock('@/lib/api-client', () => ({
+  authenticatedFetch: vi.fn(
+    (input: RequestInfo | URL, init?: RequestInit) => fetch(input, init),
+  ),
+}));
+
 const mockShip: Ship = {
   id: 'ship-1',
   name: 'Caterpillar',
@@ -50,9 +56,7 @@ describe('listShips', () => {
 
     const result = await listShips();
 
-    expect(fetch).toHaveBeenCalledWith(`${BASE}/ships`, {
-      headers: { 'Content-Type': 'application/json' },
-    });
+    expect(fetch).toHaveBeenCalledWith(`${BASE}/ships`, undefined);
     expect(result).toEqual([mockShip]);
   });
 });
@@ -61,9 +65,7 @@ describe('getShip', () => {
   it('sends GET /ships/:id and returns Ship', async () => {
     const result = await getShip('ship-1');
 
-    expect(fetch).toHaveBeenCalledWith(`${BASE}/ships/ship-1`, {
-      headers: { 'Content-Type': 'application/json' },
-    });
+    expect(fetch).toHaveBeenCalledWith(`${BASE}/ships/ship-1`, undefined);
     expect(result).toEqual(mockShip);
   });
 });
@@ -78,7 +80,6 @@ describe('createShip', () => {
 
     expect(fetch).toHaveBeenCalledWith(`${BASE}/ships`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
     expect(result).toEqual(mockShip);
@@ -93,7 +94,6 @@ describe('updateShip', () => {
 
     expect(fetch).toHaveBeenCalledWith(`${BASE}/ships/ship-1`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
     expect(result).toEqual(mockShip);
@@ -112,7 +112,6 @@ describe('deleteShip', () => {
 
     expect(fetch).toHaveBeenCalledWith(`${BASE}/ships/ship-1`, {
       method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
     });
   });
 });
@@ -128,7 +127,7 @@ describe('searchShips', () => {
 
     expect(fetch).toHaveBeenCalledWith(
       `${BASE}/ships/search?q=cater`,
-      { headers: { 'Content-Type': 'application/json' } },
+      undefined,
     );
     expect(result).toEqual([mockShip]);
   });
@@ -143,7 +142,7 @@ describe('searchShips', () => {
 
     expect(fetch).toHaveBeenCalledWith(
       `${BASE}/ships/search?q=drake%20%26%20misc`,
-      { headers: { 'Content-Type': 'application/json' } },
+      undefined,
     );
     expect(result).toEqual([]);
   });

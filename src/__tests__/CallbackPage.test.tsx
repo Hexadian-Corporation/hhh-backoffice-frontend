@@ -1,124 +1,50 @@
-import { render, screen, waitFor } from '@testing-library/react';
-import { MemoryRouter, Routes, Route } from 'react-router';
-import { vi, type Mock } from 'vitest';
-import CallbackPage from '@/pages/CallbackPage';
-import * as authLib from '@/lib/auth';
+import { render, screen, act } from "@testing-library/react";
+import { vi } from "vitest";
 
-vi.mock('@/api/auth', () => ({
-  exchangeCode: vi.fn(),
+const mockNavigate = vi.fn();
+vi.mock("react-router", async () => {
+  const actual = await vi.importActual("react-router");
+  return { ...actual, useNavigate: () => mockNavigate };
+});
+
+const mockCallbackHandler = vi.fn();
+vi.mock("@hexadian-corporation/auth-react", () => ({
+  CallbackHandler: (props: Record<string, unknown>) => {
+    mockCallbackHandler(props);
+    return <p>Authenticating…</p>;
+  },
 }));
 
-beforeEach(() => {
-  localStorage.clear();
-  sessionStorage.clear();
-});
+import CallbackPage from "@/pages/CallbackPage";
 
 afterEach(() => {
   vi.clearAllMocks();
 });
 
-// Dynamically import after mock is set up
-async function getExchangeCode() {
-  const mod = await import('@/api/auth');
-  return mod.exchangeCode as Mock;
-}
-
-function renderCallback(searchParams: string) {
-  return render(
-    <MemoryRouter initialEntries={[`/callback${searchParams}`]}>
-      <Routes>
-        <Route path="/callback" element={<CallbackPage />} />
-        <Route path="/" element={<p>Dashboard</p>} />
-        <Route path="/contracts" element={<p>Contracts Page</p>} />
-      </Routes>
-    </MemoryRouter>,
-  );
-}
-
-describe('CallbackPage', () => {
-  it('shows error when code is missing', async () => {
-    renderCallback('?state=abc');
-
-    await waitFor(() => {
-      expect(screen.getByText('Missing code or state parameter')).toBeInTheDocument();
-    });
+describe("CallbackPage", () => {
+  it("renders the loading indicator", () => {
+    render(<CallbackPage />);
+    expect(screen.getByText("Authenticating…")).toBeInTheDocument();
   });
 
-  it('shows error when state is missing', async () => {
-    renderCallback('?code=auth-code');
-
-    await waitFor(() => {
-      expect(screen.getByText('Missing code or state parameter')).toBeInTheDocument();
-    });
+  it("passes onSuccess that navigates to the return URL", () => {
+    render(<CallbackPage />);
+    const { onSuccess } = mockCallbackHandler.mock.calls[0][0];
+    act(() => onSuccess("/contracts"));
+    expect(mockNavigate).toHaveBeenCalledWith("/contracts", { replace: true });
   });
 
-  it('shows error when state does not match', async () => {
-    authLib.storeState('expected-state');
-
-    renderCallback('?code=auth-code&state=wrong-state');
-
-    await waitFor(() => {
-      expect(screen.getByText('Invalid state parameter')).toBeInTheDocument();
-    });
+  it("passes onError that navigates to /", () => {
+    render(<CallbackPage />);
+    const { onError } = mockCallbackHandler.mock.calls[0][0];
+    act(() => onError(new Error("Auth failed")));
+    expect(mockNavigate).toHaveBeenCalledWith("/", { replace: true });
   });
 
-  it('exchanges code and redirects to stored return URL', async () => {
-    const exchangeCode = await getExchangeCode();
-    exchangeCode.mockResolvedValueOnce({
-      access_token: 'new-access',
-      refresh_token: 'new-refresh',
-    });
-
-    authLib.storeState('valid-state');
-    authLib.storeReturnUrl('/contracts');
-
-    renderCallback('?code=auth-code&state=valid-state');
-
-    await waitFor(() => {
-      expect(screen.getByText('Contracts Page')).toBeInTheDocument();
-    });
-
-    expect(exchangeCode).toHaveBeenCalledWith('auth-code', expect.stringContaining('/callback'));
-    expect(authLib.getAccessToken()).toBe('new-access');
-    expect(authLib.getRefreshToken()).toBe('new-refresh');
-    expect(authLib.getStoredState()).toBeNull();
-    expect(authLib.getReturnUrl()).toBeNull();
-  });
-
-  it('redirects to / when no return URL is stored', async () => {
-    const exchangeCode = await getExchangeCode();
-    exchangeCode.mockResolvedValueOnce({
-      access_token: 'access',
-      refresh_token: 'refresh',
-    });
-
-    authLib.storeState('state-1');
-
-    renderCallback('?code=code-1&state=state-1');
-
-    await waitFor(() => {
-      expect(screen.getByText('Dashboard')).toBeInTheDocument();
-    });
-  });
-
-  it('shows error when exchange fails', async () => {
-    const exchangeCode = await getExchangeCode();
-    exchangeCode.mockRejectedValueOnce(new Error('Exchange failed'));
-
-    authLib.storeState('state-1');
-
-    renderCallback('?code=bad-code&state=state-1');
-
-    await waitFor(() => {
-      expect(screen.getByText('Failed to exchange authorization code')).toBeInTheDocument();
-    });
-  });
-
-  it('shows Authenticating… while processing', () => {
-    authLib.storeState('state-1');
-
-    renderCallback('?code=code-1&state=state-1');
-
-    expect(screen.getByText('Authenticating…')).toBeInTheDocument();
+  it("navigates to / as default return URL on success", () => {
+    render(<CallbackPage />);
+    const { onSuccess } = mockCallbackHandler.mock.calls[0][0];
+    act(() => onSuccess("/"));
+    expect(mockNavigate).toHaveBeenCalledWith("/", { replace: true });
   });
 });

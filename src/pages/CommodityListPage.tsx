@@ -4,12 +4,12 @@ import { Plus, Trash2 } from "lucide-react";
 import type { Commodity } from "@/types/commodity";
 import { listCommodities, deleteCommodity } from "@/api/commodities";
 import { Button } from "@/components/ui/button";
-import { usePermissions, hasPermission } from "@/lib/permissions";
+import { useAuth } from "@hexadian-corporation/auth-react";
 
 export default function CommodityListPage() {
   const navigate = useNavigate();
-  const permissions = usePermissions();
-  const canWrite = hasPermission(permissions, "hhh:commodities:write");
+  const { hasPermission } = useAuth();
+  const canWrite = hasPermission("hhh:commodities:write");
   const [commodities, setCommodities] = useState<Commodity[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

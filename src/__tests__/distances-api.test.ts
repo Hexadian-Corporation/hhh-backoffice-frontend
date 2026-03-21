@@ -8,6 +8,12 @@ import {
 } from '@/api/distances';
 import type { LocationDistance, DistanceCreate } from '@/types/distance';
 
+vi.mock('@/lib/api-client', () => ({
+  authenticatedFetch: vi.fn(
+    (input: RequestInfo | URL, init?: RequestInit) => fetch(input, init),
+  ),
+}));
+
 const mockDistance: LocationDistance = {
   id: 'dist-1',
   from_location_id: 'loc-1',
@@ -45,9 +51,7 @@ describe('getLocationDistances', () => {
 
     const result = await getLocationDistances('loc-1');
 
-    expect(fetch).toHaveBeenCalledWith(`${BASE}/locations/loc-1/distances`, {
-      headers: { 'Content-Type': 'application/json' },
-    });
+    expect(fetch).toHaveBeenCalledWith(`${BASE}/locations/loc-1/distances`, undefined);
     expect(result).toEqual([mockDistance]);
   });
 });
@@ -61,9 +65,7 @@ describe('listDistances', () => {
 
     const result = await listDistances();
 
-    expect(fetch).toHaveBeenCalledWith(`${BASE}/distances/`, {
-      headers: { 'Content-Type': 'application/json' },
-    });
+    expect(fetch).toHaveBeenCalledWith(`${BASE}/distances/`, undefined);
     expect(result).toEqual([mockDistance]);
   });
 });
@@ -72,9 +74,7 @@ describe('getDistance', () => {
   it('sends GET /distances/:id and returns LocationDistance', async () => {
     const result = await getDistance('dist-1');
 
-    expect(fetch).toHaveBeenCalledWith(`${BASE}/distances/dist-1`, {
-      headers: { 'Content-Type': 'application/json' },
-    });
+    expect(fetch).toHaveBeenCalledWith(`${BASE}/distances/dist-1`, undefined);
     expect(result).toEqual(mockDistance);
   });
 });
@@ -92,7 +92,6 @@ describe('createDistance', () => {
 
     expect(fetch).toHaveBeenCalledWith(`${BASE}/distances/`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
     expect(result).toEqual(mockDistance);
@@ -111,7 +110,6 @@ describe('deleteDistance', () => {
 
     expect(fetch).toHaveBeenCalledWith(`${BASE}/distances/dist-1`, {
       method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
     });
   });
 });

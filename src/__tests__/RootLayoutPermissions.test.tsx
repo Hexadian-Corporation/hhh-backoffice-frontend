@@ -2,26 +2,22 @@ import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { vi } from "vitest";
 
-const mockUsePermissions = vi.fn<() => string[]>(() => []);
-const mockHasAnyPermission = vi.fn(
-  (perms: string[], req: string[]) => req.some((p: string) => perms.includes(p)),
-);
+const mockHasPermission = vi.fn<(p: string) => boolean>(() => false);
+const mockHasAnyPermission = vi.fn<(ps: string[]) => boolean>(() => false);
 
-vi.mock("@/lib/auth", () => ({
-  getUserContext: vi.fn(() => ({ username: "admin", permissions: [] })),
-  getAccessToken: vi.fn(() => null),
-  clearTokens: vi.fn(),
-  getRefreshToken: vi.fn(() => null),
-  redirectToLogin: vi.fn(),
-}));
-
-vi.mock("@/api/auth", () => ({
-  revokeToken: vi.fn(),
-}));
-
-vi.mock("@/lib/permissions", () => ({
-  usePermissions: (...args: unknown[]) => mockUsePermissions(...(args as [])),
-  hasAnyPermission: (...args: unknown[]) => mockHasAnyPermission(...(args as [string[], string[]])),
+vi.mock("@hexadian-corporation/auth-react", () => ({
+  useAuth: () => ({
+    user: { username: "admin", rsiHandle: null, permissions: [] },
+    isAuthenticated: true,
+    isLoading: false,
+    login: vi.fn(),
+    logout: vi.fn(),
+    tryRefresh: vi.fn(),
+    authFetch: vi.fn(),
+    hasPermission: (...args: unknown[]) => mockHasPermission(...(args as [string])),
+    hasAnyPermission: (...args: unknown[]) => mockHasAnyPermission(...(args as [string[]])),
+    handleCallback: vi.fn(),
+  }),
 }));
 
 import RootLayout from "@/layouts/RootLayout";
@@ -32,7 +28,9 @@ afterEach(() => {
 
 describe("RootLayout permission filtering", () => {
   it("hides Contratos nav item when user lacks contracts:write", () => {
-    mockUsePermissions.mockReturnValue(["hhh:locations:write"]);
+    const perms = ["hhh:locations:write"];
+    mockHasPermission.mockImplementation((p) => perms.includes(p));
+    mockHasAnyPermission.mockImplementation((ps) => ps.some((p) => perms.includes(p)));
 
     render(
       <MemoryRouter initialEntries={["/"]}>
@@ -48,7 +46,8 @@ describe("RootLayout permission filtering", () => {
   });
 
   it("always shows Dashboard nav item regardless of permissions", () => {
-    mockUsePermissions.mockReturnValue([]);
+    mockHasPermission.mockReturnValue(false);
+    mockHasAnyPermission.mockReturnValue(false);
 
     render(
       <MemoryRouter initialEntries={["/"]}>
@@ -60,13 +59,15 @@ describe("RootLayout permission filtering", () => {
   });
 
   it("shows all nav items when user has all required permissions", () => {
-    mockUsePermissions.mockReturnValue([
+    const perms = [
       "hhh:contracts:write",
       "hhh:locations:write",
       "hhh:commodities:write",
       "hhh:ships:write",
       "auth:users:read",
-    ]);
+    ];
+    mockHasPermission.mockImplementation((p) => perms.includes(p));
+    mockHasAnyPermission.mockImplementation((ps) => ps.some((p) => perms.includes(p)));
 
     render(
       <MemoryRouter initialEntries={["/"]}>

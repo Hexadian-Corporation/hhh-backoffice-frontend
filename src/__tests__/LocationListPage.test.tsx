@@ -5,15 +5,19 @@ import { vi, type Mock } from "vitest";
 import LocationListPage from "@/pages/LocationListPage";
 import type { Location } from "@/types/location";
 
-vi.mock("@/lib/permissions", () => ({
-  usePermissions: () => [
-    "hhh:contracts:read", "hhh:contracts:write",
-    "hhh:locations:read", "hhh:locations:write",
-    "hhh:commodities:read", "hhh:commodities:write",
-    "auth:users:read", "auth:users:admin",
-  ],
-  hasPermission: () => true,
-  hasAnyPermission: () => true,
+vi.mock("@hexadian-corporation/auth-react", () => ({
+  useAuth: () => ({
+    user: { username: "admin", permissions: [] },
+    isAuthenticated: true,
+    isLoading: false,
+    login: vi.fn(),
+    logout: vi.fn(),
+    tryRefresh: vi.fn(),
+    authFetch: vi.fn(),
+    hasPermission: () => true,
+    hasAnyPermission: () => true,
+    handleCallback: vi.fn(),
+  }),
 }));
 
 const mockLocations: Location[] = [

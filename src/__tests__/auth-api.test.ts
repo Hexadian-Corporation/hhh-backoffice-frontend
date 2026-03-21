@@ -7,6 +7,12 @@ import {
 } from '@/api/auth';
 import type { User, VerificationResult } from '@/types/user';
 
+vi.mock('@/lib/api-client', () => ({
+  authenticatedFetch: vi.fn(
+    (input: RequestInfo | URL, init?: RequestInit) => fetch(input, init),
+  ),
+}));
+
 const mockUser: User = {
   _id: 'user-1',
   username: 'testpilot',
@@ -52,9 +58,7 @@ describe('getUsers', () => {
 
     const result = await getUsers();
 
-    expect(fetch).toHaveBeenCalledWith(`${BASE}/auth/users`, {
-      headers: { 'Content-Type': 'application/json' },
-    });
+    expect(fetch).toHaveBeenCalledWith(`${BASE}/auth/users`, undefined);
     expect(result).toEqual([mockUser]);
   });
 });
@@ -63,9 +67,7 @@ describe('getUser', () => {
   it('sends GET /auth/users/:id and returns User', async () => {
     const result = await getUser('user-1');
 
-    expect(fetch).toHaveBeenCalledWith(`${BASE}/auth/users/user-1`, {
-      headers: { 'Content-Type': 'application/json' },
-    });
+    expect(fetch).toHaveBeenCalledWith(`${BASE}/auth/users/user-1`, undefined);
     expect(result).toEqual(mockUser);
   });
 });
@@ -83,7 +85,6 @@ describe('startVerification', () => {
       `${BASE}/auth/verify/start?user_id=user-1`,
       {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ rsi_handle: 'TestPilot' }),
       },
     );
@@ -121,10 +122,7 @@ describe('confirmVerification', () => {
 
     expect(fetch).toHaveBeenCalledWith(
       `${BASE}/auth/verify/confirm?user_id=user-1`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      },
+      { method: 'POST' },
     );
     expect(result).toEqual(confirmResult);
   });

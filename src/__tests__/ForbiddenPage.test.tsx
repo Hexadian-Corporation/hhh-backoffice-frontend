@@ -2,9 +2,19 @@ import { render, screen } from "@testing-library/react";
 import { vi } from "vitest";
 import ForbiddenPage from "@/pages/ForbiddenPage";
 
-vi.mock("@/lib/auth", () => ({
-  clearTokens: vi.fn(),
-  redirectToLogin: vi.fn(),
+vi.mock("@hexadian-corporation/auth-react", () => ({
+  useAuth: () => ({
+    user: { username: "admin", permissions: [] },
+    isAuthenticated: true,
+    isLoading: false,
+    login: vi.fn(),
+    logout: vi.fn(),
+    tryRefresh: vi.fn(),
+    authFetch: vi.fn(),
+    hasPermission: () => true,
+    hasAnyPermission: () => true,
+    handleCallback: vi.fn(),
+  }),
 }));
 
 describe("ForbiddenPage", () => {

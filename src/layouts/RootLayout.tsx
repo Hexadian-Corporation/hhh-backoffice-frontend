@@ -1,8 +1,6 @@
 import { NavLink, Outlet } from "react-router"
 import { LayoutDashboard, FileText, MapPin, Package, Rocket, Users, LogOut, User } from "lucide-react"
-import { getUserContext, clearTokens, getRefreshToken, redirectToLogin } from "@/lib/auth"
-import { revokeToken } from "@/api/auth"
-import { usePermissions, hasAnyPermission } from "@/lib/permissions"
+import { useAuth } from "@hexadian-corporation/auth-react"
 
 const navItems = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard, permissions: [] as string[] },
@@ -14,20 +12,11 @@ const navItems = [
 ]
 
 export default function RootLayout() {
-  const user = getUserContext();
-  const permissions = usePermissions();
+  const { user, logout, login, hasAnyPermission } = useAuth();
 
   async function handleLogout() {
-    const refresh = getRefreshToken();
-    if (refresh) {
-      try {
-        await revokeToken(refresh);
-      } catch {
-        /* best-effort revocation */
-      }
-    }
-    clearTokens();
-    redirectToLogin();
+    await logout();
+    login();
   }
 
   return (
@@ -45,7 +34,7 @@ export default function RootLayout() {
         </div>
         <nav className="flex-1 p-2 space-y-1">
           {navItems
-            .filter(({ permissions: req }) => req.length === 0 || hasAnyPermission(permissions, req))
+            .filter(({ permissions: req }) => req.length === 0 || hasAnyPermission(req))
             .map(({ to, label, icon: Icon }) => (
             <NavLink
               key={to}

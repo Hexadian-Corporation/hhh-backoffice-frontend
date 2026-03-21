@@ -1,18 +1,28 @@
 import { render, screen } from "@testing-library/react";
-import { MemoryRouter } from "react-router";
 import { vi } from "vitest";
 
-const mockUsePermissions = vi.fn<() => string[]>(() => []);
-const mockHasAnyPermission = vi.fn(
-  (perms: string[], req: string[]) => req.some((p: string) => perms.includes(p)),
-);
+const mockHasAnyPermission = vi.fn<(ps: string[]) => boolean>(() => false);
 
-vi.mock("@/lib/permissions", () => ({
-  usePermissions: (...args: unknown[]) => mockUsePermissions(...(args as [])),
-  hasAnyPermission: (...args: unknown[]) => mockHasAnyPermission(...(args as [string[], string[]])),
+vi.mock("@hexadian-corporation/auth-react", () => ({
+  useAuth: () => ({
+    user: { username: "admin", permissions: [] },
+    isAuthenticated: true,
+    isLoading: false,
+    login: vi.fn(),
+    logout: vi.fn(),
+    tryRefresh: vi.fn(),
+    authFetch: vi.fn(),
+    hasPermission: vi.fn(() => false),
+    hasAnyPermission: (...args: unknown[]) => mockHasAnyPermission(...(args as [string[]])),
+    handleCallback: vi.fn(),
+  }),
+  PermissionGuard: ({ required, children }: { required: string[]; children: React.ReactNode }) =>
+    mockHasAnyPermission(required)
+      ? children
+      : (<p>Insufficient Permissions</p>),
 }));
 
-import PermissionGuard from "@/components/PermissionGuard";
+import { PermissionGuard } from "@hexadian-corporation/auth-react";
 
 afterEach(() => {
   vi.clearAllMocks();
@@ -20,28 +30,26 @@ afterEach(() => {
 
 describe("PermissionGuard", () => {
   it("renders children when user has the required permission", () => {
-    mockUsePermissions.mockReturnValue(["hhh:contracts:read", "hhh:contracts:write"]);
+    const perms = ["hhh:contracts:read", "hhh:contracts:write"];
+    mockHasAnyPermission.mockImplementation((ps) => ps.some((p) => perms.includes(p)));
 
     render(
-      <MemoryRouter>
-        <PermissionGuard required={["hhh:contracts:read"]}>
-          <p>Protected Content</p>
-        </PermissionGuard>
-      </MemoryRouter>,
+      <PermissionGuard required={["hhh:contracts:read"]}>
+        <p>Protected Content</p>
+      </PermissionGuard>,
     );
 
     expect(screen.getByText("Protected Content")).toBeInTheDocument();
   });
 
   it("renders InsufficientPermissionsPage when user lacks the required permission", () => {
-    mockUsePermissions.mockReturnValue(["hhh:locations:read"]);
+    const perms = ["hhh:locations:read"];
+    mockHasAnyPermission.mockImplementation((ps) => ps.some((p) => perms.includes(p)));
 
     render(
-      <MemoryRouter>
-        <PermissionGuard required={["hhh:contracts:read"]}>
-          <p>Protected Content</p>
-        </PermissionGuard>
-      </MemoryRouter>,
+      <PermissionGuard required={["hhh:contracts:read"]}>
+        <p>Protected Content</p>
+      </PermissionGuard>,
     );
 
     expect(screen.getByText("Insufficient Permissions")).toBeInTheDocument();
@@ -49,14 +57,12 @@ describe("PermissionGuard", () => {
   });
 
   it("renders InsufficientPermissionsPage when user has no permissions", () => {
-    mockUsePermissions.mockReturnValue([]);
+    mockHasAnyPermission.mockReturnValue(false);
 
     render(
-      <MemoryRouter>
-        <PermissionGuard required={["auth:users:read"]}>
-          <p>Admin Panel</p>
-        </PermissionGuard>
-      </MemoryRouter>,
+      <PermissionGuard required={["auth:users:read"]}>
+        <p>Admin Panel</p>
+      </PermissionGuard>,
     );
 
     expect(screen.getByText("Insufficient Permissions")).toBeInTheDocument();
@@ -64,14 +70,13 @@ describe("PermissionGuard", () => {
   });
 
   it("renders children when user has any of the required permissions", () => {
-    mockUsePermissions.mockReturnValue(["hhh:contracts:write"]);
+    const perms = ["hhh:contracts:write"];
+    mockHasAnyPermission.mockImplementation((ps) => ps.some((p) => perms.includes(p)));
 
     render(
-      <MemoryRouter>
-        <PermissionGuard required={["hhh:contracts:read", "hhh:contracts:write"]}>
-          <p>Editable Content</p>
-        </PermissionGuard>
-      </MemoryRouter>,
+      <PermissionGuard required={["hhh:contracts:read", "hhh:contracts:write"]}>
+        <p>Editable Content</p>
+      </PermissionGuard>,
     );
 
     expect(screen.getByText("Editable Content")).toBeInTheDocument();

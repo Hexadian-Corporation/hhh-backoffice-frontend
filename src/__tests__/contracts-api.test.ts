@@ -8,6 +8,12 @@ import {
 } from '@/api/contracts';
 import type { Contract, ContractCreate, ContractUpdate } from '@/types/contract';
 
+vi.mock('@/lib/api-client', () => ({
+  authenticatedFetch: vi.fn(
+    (input: RequestInfo | URL, init?: RequestInit) => fetch(input, init),
+  ),
+}));
+
 const mockContract: Contract = {
   id: '1',
   title: 'Test Haul',
@@ -65,9 +71,7 @@ describe('listContracts', () => {
 
     const result = await listContracts();
 
-    expect(fetch).toHaveBeenCalledWith(`${BASE}/contracts`, {
-      headers: { 'Content-Type': 'application/json' },
-    });
+    expect(fetch).toHaveBeenCalledWith(`${BASE}/contracts`, undefined);
     expect(result).toEqual([mockContract]);
   });
 });
@@ -76,9 +80,7 @@ describe('getContract', () => {
   it('sends GET /contracts/:id and returns Contract', async () => {
     const result = await getContract('1');
 
-    expect(fetch).toHaveBeenCalledWith(`${BASE}/contracts/1`, {
-      headers: { 'Content-Type': 'application/json' },
-    });
+    expect(fetch).toHaveBeenCalledWith(`${BASE}/contracts/1`, undefined);
     expect(result).toEqual(mockContract);
   });
 });
@@ -93,7 +95,6 @@ describe('createContract', () => {
 
     expect(fetch).toHaveBeenCalledWith(`${BASE}/contracts`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
     expect(result).toEqual(mockContract);
@@ -108,7 +109,6 @@ describe('updateContract', () => {
 
     expect(fetch).toHaveBeenCalledWith(`${BASE}/contracts/1`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
     expect(result).toEqual(mockContract);
@@ -127,7 +127,6 @@ describe('deleteContract', () => {
 
     expect(fetch).toHaveBeenCalledWith(`${BASE}/contracts/1`, {
       method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
     });
   });
 });
