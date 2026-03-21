@@ -1,0 +1,29 @@
+{
+  "name": "@hexadian-corporation/auth-react",
+  "version": "0.0.0",
+  "description": "React bindings for Hexadian Auth Service",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@hexadian-corporation/auth-core": "*"
+  },
+  "peerDependencies": {
+    "react": "^18 || ^19",
+    "react-dom": "^18 || ^19"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Hexadian-Corporation/hexadian-auth-client.git",
+    "directory": "packages/react"
+  },
+  "license": "SEE LICENSE IN LICENSE"
+}

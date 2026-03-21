@@ -1,0 +1,28 @@
+{
+  "name": "@hexadian-corporation/auth-core",
+  "version": "0.0.0",
+  "description": "Framework-agnostic auth utilities for Hexadian Auth Service",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run --coverage"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Hexadian-Corporation/hexadian-auth-client.git",
+    "directory": "packages/core"
+  },
+  "license": "SEE LICENSE IN LICENSE"
+}
