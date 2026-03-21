@@ -9,6 +9,12 @@ import {
 } from '@/api/commodities';
 import type { Commodity, CommodityCreate, CommodityUpdate } from '@/types/commodity';
 
+vi.mock('@/lib/api-client', () => ({
+  authenticatedFetch: vi.fn(
+    (input: RequestInfo | URL, init?: RequestInit) => fetch(input, init),
+  ),
+}));
+
 const mockCommodity: Commodity = {
   id: 'comm-1',
   name: 'Laranite',
@@ -44,9 +50,7 @@ describe('listCommodities', () => {
 
     const result = await listCommodities();
 
-    expect(fetch).toHaveBeenCalledWith(`${BASE}/commodities`, {
-      headers: { 'Content-Type': 'application/json' },
-    });
+    expect(fetch).toHaveBeenCalledWith(`${BASE}/commodities`, undefined);
     expect(result).toEqual([mockCommodity]);
   });
 });
@@ -55,9 +59,7 @@ describe('getCommodity', () => {
   it('sends GET /commodities/:id and returns Commodity', async () => {
     const result = await getCommodity('comm-1');
 
-    expect(fetch).toHaveBeenCalledWith(`${BASE}/commodities/comm-1`, {
-      headers: { 'Content-Type': 'application/json' },
-    });
+    expect(fetch).toHaveBeenCalledWith(`${BASE}/commodities/comm-1`, undefined);
     expect(result).toEqual(mockCommodity);
   });
 });
@@ -72,7 +74,6 @@ describe('createCommodity', () => {
 
     expect(fetch).toHaveBeenCalledWith(`${BASE}/commodities`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
     expect(result).toEqual(mockCommodity);
@@ -87,7 +88,6 @@ describe('updateCommodity', () => {
 
     expect(fetch).toHaveBeenCalledWith(`${BASE}/commodities/comm-1`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
     expect(result).toEqual(mockCommodity);
@@ -106,7 +106,6 @@ describe('deleteCommodity', () => {
 
     expect(fetch).toHaveBeenCalledWith(`${BASE}/commodities/comm-1`, {
       method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
     });
   });
 });
@@ -122,7 +121,7 @@ describe('searchCommodities', () => {
 
     expect(fetch).toHaveBeenCalledWith(
       `${BASE}/commodities/search?q=lara`,
-      { headers: { 'Content-Type': 'application/json' } },
+      undefined,
     );
     expect(result).toEqual([mockCommodity]);
   });
@@ -137,7 +136,7 @@ describe('searchCommodities', () => {
 
     expect(fetch).toHaveBeenCalledWith(
       `${BASE}/commodities/search?q=gold%20%26%20silver`,
-      { headers: { 'Content-Type': 'application/json' } },
+      undefined,
     );
     expect(result).toEqual([]);
   });

@@ -9,6 +9,12 @@ import {
 } from '@/api/locations';
 import type { Location, LocationCreate, LocationUpdate } from '@/types/location';
 
+vi.mock('@/lib/api-client', () => ({
+  authenticatedFetch: vi.fn(
+    (input: RequestInfo | URL, init?: RequestInit) => fetch(input, init),
+  ),
+}));
+
 const mockLocation: Location = {
   id: 'loc-1',
   name: 'Port Olisar',
@@ -49,9 +55,7 @@ describe('listLocations', () => {
 
     const result = await listLocations();
 
-    expect(fetch).toHaveBeenCalledWith(`${BASE}/locations`, {
-      headers: { 'Content-Type': 'application/json' },
-    });
+    expect(fetch).toHaveBeenCalledWith(`${BASE}/locations`, undefined);
     expect(result).toEqual([mockLocation]);
   });
 
@@ -65,7 +69,7 @@ describe('listLocations', () => {
 
     expect(fetch).toHaveBeenCalledWith(
       `${BASE}/locations?location_type=station`,
-      { headers: { 'Content-Type': 'application/json' } },
+      undefined,
     );
     expect(result).toEqual([mockLocation]);
   });
@@ -80,7 +84,7 @@ describe('listLocations', () => {
 
     expect(fetch).toHaveBeenCalledWith(
       `${BASE}/locations?parent_id=planet-1`,
-      { headers: { 'Content-Type': 'application/json' } },
+      undefined,
     );
     expect(result).toEqual([mockLocation]);
   });
@@ -95,7 +99,7 @@ describe('listLocations', () => {
 
     expect(fetch).toHaveBeenCalledWith(
       `${BASE}/locations?location_type=station&parent_id=planet-1`,
-      { headers: { 'Content-Type': 'application/json' } },
+      undefined,
     );
     expect(result).toEqual([mockLocation]);
   });
@@ -105,9 +109,7 @@ describe('getLocation', () => {
   it('sends GET /locations/:id and returns Location', async () => {
     const result = await getLocation('loc-1');
 
-    expect(fetch).toHaveBeenCalledWith(`${BASE}/locations/loc-1`, {
-      headers: { 'Content-Type': 'application/json' },
-    });
+    expect(fetch).toHaveBeenCalledWith(`${BASE}/locations/loc-1`, undefined);
     expect(result).toEqual(mockLocation);
   });
 });
@@ -122,7 +124,6 @@ describe('createLocation', () => {
 
     expect(fetch).toHaveBeenCalledWith(`${BASE}/locations`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
     expect(result).toEqual(mockLocation);
@@ -137,7 +138,6 @@ describe('updateLocation', () => {
 
     expect(fetch).toHaveBeenCalledWith(`${BASE}/locations/loc-1`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
     expect(result).toEqual(mockLocation);
@@ -156,7 +156,6 @@ describe('deleteLocation', () => {
 
     expect(fetch).toHaveBeenCalledWith(`${BASE}/locations/loc-1`, {
       method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
     });
   });
 });
@@ -172,7 +171,7 @@ describe('searchLocations', () => {
 
     expect(fetch).toHaveBeenCalledWith(
       `${BASE}/locations/search?q=olisar`,
-      { headers: { 'Content-Type': 'application/json' } },
+      undefined,
     );
     expect(result).toEqual([mockLocation]);
   });
@@ -187,7 +186,7 @@ describe('searchLocations', () => {
 
     expect(fetch).toHaveBeenCalledWith(
       `${BASE}/locations/search?q=port%20%26%20olisar`,
-      { headers: { 'Content-Type': 'application/json' } },
+      undefined,
     );
     expect(result).toEqual([]);
   });
