@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import type { LocationDistance } from "@/types/distance";
-import type { Location } from "@/types/location";
 import {
   getLocationDistances,
   createDistance,
@@ -37,7 +36,10 @@ export default function DistancesTab({ locationId }: DistancesTabProps) {
 
   // Add form state
   const [showAddForm, setShowAddForm] = useState(false);
-  const [selectedTarget, setSelectedTarget] = useState<Location | null>(null);
+  const [selectedTarget, setSelectedTarget] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
   const [newDistance, setNewDistance] = useState<number>(0);
   const [newTravelType, setNewTravelType] = useState<string>("quantum");
   const [saving, setSaving] = useState(false);
@@ -110,7 +112,7 @@ export default function DistancesTab({ locationId }: DistancesTabProps) {
   );
 
   function handleTargetSelect(id: string, label: string) {
-    setSelectedTarget({ id, name: label } as Location);
+    setSelectedTarget({ id, name: label });
   }
 
   function handleTargetClear() {
