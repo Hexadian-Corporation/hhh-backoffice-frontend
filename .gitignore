@@ -9,7 +9,7 @@ lerna-debug.log*
 
 node_modules
 dist
-!vendor/*/dist
+!vendor/*/dist  # allow vendored package dist/ directories
 dist-ssr
 *.local
 
