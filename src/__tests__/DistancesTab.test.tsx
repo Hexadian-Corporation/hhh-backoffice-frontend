@@ -321,4 +321,239 @@ describe("DistancesTab", () => {
       screen.getByLabelText("Delete distance to ARC-L3"),
     ).toBeInTheDocument();
   });
+
+  it("falls back to location ID when getLocation fails", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn((url: string) => {
+        if (url === `${MAPS_BASE}/locations/loc-1/distances`) {
+          return Promise.resolve({
+            ok: true,
+            json: () =>
+              Promise.resolve([
+                {
+                  id: "dist-x",
+                  from_location_id: "loc-1",
+                  to_location_id: "loc-unknown",
+                  distance: 999,
+                  travel_type: "scm",
+                },
+              ]),
+          });
+        }
+        // All location lookups fail
+        return Promise.resolve({
+          ok: false,
+          status: 404,
+          statusText: "Not Found",
+        });
+      }),
+    );
+
+    render(<DistancesTab locationId="loc-1" />);
+
+    // Should fall back to showing the raw ID
+    expect(await screen.findByText("loc-unknown")).toBeInTheDocument();
+  });
+
+  it("adds a new distance via the add form", async () => {
+    setupFetch();
+    render(<DistancesTab locationId="loc-1" />);
+
+    await screen.findByText("ARC-L2");
+
+    // Open add form
+    await userEvent.click(screen.getByText("Add Distance"));
+
+    // Type in autocomplete to trigger search
+    const searchInput = screen.getByPlaceholderText("Search location…");
+    await userEvent.type(searchInput, "ARC");
+
+    // Wait for debounced search results
+    const option = await screen.findByRole("option", {
+      name: /ARC-L2 \(station\)/,
+    });
+    await userEvent.click(option);
+
+    // Fill distance
+    const distanceInput = screen.getByLabelText("Distance (meters)");
+    await userEvent.clear(distanceInput);
+    await userEvent.type(distanceInput, "5000");
+
+    // Select travel type
+    const travelTypeSelect = screen.getByLabelText("Travel Type");
+    await userEvent.selectOptions(travelTypeSelect, "scm");
+
+    // Click Save
+    await userEvent.click(screen.getByText("Save"));
+
+    // Verify POST was called with correct payload
+    expect(fetch).toHaveBeenCalledWith(
+      `${MAPS_BASE}/distances/`,
+      expect.objectContaining({
+        method: "POST",
+        body: JSON.stringify({
+          from_location_id: "loc-1",
+          to_location_id: "loc-2",
+          distance: 5000,
+          travel_type: "scm",
+        }),
+      }),
+    );
+
+    // Form should be hidden after save
+    expect(
+      screen.queryByLabelText("Target Location"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("shows error when adding a distance fails", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn((url: string, init?: RequestInit) => {
+        if (url === `${MAPS_BASE}/locations/loc-1/distances`) {
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve(mockDistances),
+          });
+        }
+        if (url === `${MAPS_BASE}/locations/loc-2`) {
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve(mockLocationArcL2),
+          });
+        }
+        if (url === `${MAPS_BASE}/locations/loc-3`) {
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve(mockLocationArcL3),
+          });
+        }
+        if (url.includes("/locations/search")) {
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve([mockLocationArcL2]),
+          });
+        }
+        // Create distance fails
+        if (url === `${MAPS_BASE}/distances/` && init?.method === "POST") {
+          return Promise.resolve({
+            ok: false,
+            status: 500,
+            statusText: "Internal Server Error",
+          });
+        }
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve([]),
+        });
+      }),
+    );
+
+    render(<DistancesTab locationId="loc-1" />);
+    await screen.findByText("ARC-L2");
+
+    // Open add form
+    await userEvent.click(screen.getByText("Add Distance"));
+
+    // Search and select
+    const searchInput = screen.getByPlaceholderText("Search location…");
+    await userEvent.type(searchInput, "ARC");
+    const option = await screen.findByRole("option", {
+      name: /ARC-L2 \(station\)/,
+    });
+    await userEvent.click(option);
+
+    // Save
+    await userEvent.click(screen.getByText("Save"));
+
+    // Should show error
+    expect(
+      await screen.findByText("Failed to add distance"),
+    ).toBeInTheDocument();
+  });
+
+  it("shows error when delete fails", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn((url: string, init?: RequestInit) => {
+        if (url === `${MAPS_BASE}/locations/loc-1/distances`) {
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve(mockDistances),
+          });
+        }
+        if (url === `${MAPS_BASE}/locations/loc-2`) {
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve(mockLocationArcL2),
+          });
+        }
+        if (url === `${MAPS_BASE}/locations/loc-3`) {
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve(mockLocationArcL3),
+          });
+        }
+        // Delete fails
+        if (init?.method === "DELETE") {
+          return Promise.resolve({
+            ok: false,
+            status: 500,
+            statusText: "Internal Server Error",
+          });
+        }
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve([]),
+        });
+      }),
+    );
+
+    render(<DistancesTab locationId="loc-1" />);
+    await screen.findByText("ARC-L2");
+
+    // Click delete
+    await userEvent.click(screen.getByLabelText("Delete distance to ARC-L2"));
+
+    // Confirm
+    const dialog = screen.getByRole("dialog");
+    await userEvent.click(within(dialog).getByText("Delete"));
+
+    // Should show error
+    expect(
+      await screen.findByText("Failed to delete distance"),
+    ).toBeInTheDocument();
+
+    // Distance should still be in the list
+    expect(screen.getByText("ARC-L2")).toBeInTheDocument();
+  });
+
+  it("clears selected target in add form", async () => {
+    setupFetch();
+    render(<DistancesTab locationId="loc-1" />);
+    await screen.findByText("ARC-L2");
+
+    // Open add form
+    await userEvent.click(screen.getByText("Add Distance"));
+
+    // Search and select
+    const searchInput = screen.getByPlaceholderText("Search location…");
+    await userEvent.type(searchInput, "ARC");
+    const option = await screen.findByRole("option", {
+      name: /ARC-L2 \(station\)/,
+    });
+    await userEvent.click(option);
+
+    // Should show selected value with clear button
+    expect(screen.getByText("ARC-L2 (station)")).toBeInTheDocument();
+
+    // Clear the selection
+    await userEvent.click(screen.getByLabelText("Clear selection"));
+
+    // Should show search input again
+    expect(
+      screen.getByPlaceholderText("Search location…"),
+    ).toBeInTheDocument();
+  });
 });
