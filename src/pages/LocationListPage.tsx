@@ -4,12 +4,12 @@ import { Plus, Trash2 } from "lucide-react";
 import type { Location } from "@/types/location";
 import { listLocations, deleteLocation } from "@/api/locations";
 import { Button } from "@/components/ui/button";
-import { usePermissions, hasPermission } from "@/lib/permissions";
+import { useAuth } from "@hexadian-corporation/auth-react";
 
 export default function LocationListPage() {
   const navigate = useNavigate();
-  const permissions = usePermissions();
-  const canWrite = hasPermission(permissions, "hhh:locations:write");
+  const { hasPermission } = useAuth();
+  const canWrite = hasPermission("hhh:locations:write");
   const [locations, setLocations] = useState<Location[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

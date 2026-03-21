@@ -9,7 +9,7 @@ import type { Location } from "@/types/location";
 import type { Commodity } from "@/types/commodity";
 import KpiCard from "@/components/dashboard/KpiCard";
 import HealthPanel from "@/components/dashboard/HealthPanel";
-import { usePermissions, hasPermission } from "@/lib/permissions";
+import { useAuth } from "@hexadian-corporation/auth-react";
 
 interface KpiState<T> {
   data: T[] | null;
@@ -21,7 +21,7 @@ export default function DashboardPage() {
   const [contracts, setContracts] = useState<KpiState<Contract>>({ data: null, loading: true, error: null });
   const [locations, setLocations] = useState<KpiState<Location>>({ data: null, loading: true, error: null });
   const [commodities, setCommodities] = useState<KpiState<Commodity>>({ data: null, loading: true, error: null });
-  const permissions = usePermissions();
+  const { hasPermission } = useAuth();
 
   useEffect(() => {
     let cancelled = false;
@@ -119,7 +119,7 @@ export default function DashboardPage() {
 
       {/* Quick Actions */}
       <div className="flex flex-wrap gap-3">
-        {hasPermission(permissions, "hhh:contracts:write") && (
+        {hasPermission("hhh:contracts:write") && (
         <Link
           to="/contracts/new"
           className="inline-flex items-center gap-2 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-sm font-semibold transition-all hover:border-[var(--color-accent)]/50 hover:shadow-[0_0_16px_var(--color-glow)]"
@@ -128,7 +128,7 @@ export default function DashboardPage() {
           <Plus className="h-4 w-4" /> New Contract
         </Link>
         )}
-        {hasPermission(permissions, "hhh:locations:write") && (
+        {hasPermission("hhh:locations:write") && (
         <Link
           to="/locations/new"
           className="inline-flex items-center gap-2 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-sm font-semibold transition-all hover:border-[var(--color-accent)]/50 hover:shadow-[0_0_16px_var(--color-glow)]"
@@ -137,7 +137,7 @@ export default function DashboardPage() {
           <Plus className="h-4 w-4" /> New Location
         </Link>
         )}
-        {hasPermission(permissions, "hhh:commodities:write") && (
+        {hasPermission("hhh:commodities:write") && (
         <Link
           to="/commodities/new"
           className="inline-flex items-center gap-2 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-sm font-semibold transition-all hover:border-[var(--color-accent)]/50 hover:shadow-[0_0_16px_var(--color-glow)]"

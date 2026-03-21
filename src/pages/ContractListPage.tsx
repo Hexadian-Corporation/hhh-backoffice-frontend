@@ -5,7 +5,7 @@ import type { Contract } from "@/types/contract";
 import { listContracts, updateContract, deleteContract } from "@/api/contracts";
 import { Button } from "@/components/ui/button";
 import ConfirmationDialog from "@/components/ui/ConfirmationDialog";
-import { usePermissions, hasPermission } from "@/lib/permissions";
+import { useAuth } from "@hexadian-corporation/auth-react";
 
 const STATUS_OPTIONS = ["all", "draft", "active", "expired", "cancelled"] as const;
 type StatusFilter = (typeof STATUS_OPTIONS)[number];
@@ -73,8 +73,8 @@ function formatDeadline(iso: string): string {
 
 export default function ContractListPage() {
   const navigate = useNavigate();
-  const permissions = usePermissions();
-  const canWrite = hasPermission(permissions, "hhh:contracts:write");
+  const { hasPermission } = useAuth();
+  const canWrite = hasPermission("hhh:contracts:write");
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

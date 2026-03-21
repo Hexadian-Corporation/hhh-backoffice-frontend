@@ -1,6 +1,8 @@
-import { clearTokens, redirectToLogin } from "@/lib/auth";
+import { useAuth } from "@hexadian-corporation/auth-react";
 
 export default function ForbiddenPage() {
+  const { logout, login } = useAuth();
+
   return (
     <div className="flex h-screen flex-col items-center justify-center bg-[var(--color-bg)] text-center">
       <h1 className="text-6xl font-bold text-[var(--color-text)]">403</h1>
@@ -11,9 +13,9 @@ export default function ForbiddenPage() {
         Contact an administrator to request access.
       </p>
       <button
-        onClick={() => {
-          clearTokens();
-          redirectToLogin();
+        onClick={async () => {
+          await logout();
+          login();
         }}
         className="mt-8 rounded-md px-6 py-2 text-sm font-medium transition-colors"
         style={{

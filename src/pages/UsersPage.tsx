@@ -4,7 +4,7 @@ import type { User } from "@/types/user";
 import { getUsers } from "@/api/auth";
 import { Button } from "@/components/ui/button";
 import VerificationModal from "@/components/VerificationModal";
-import { usePermissions, hasPermission } from "@/lib/permissions";
+import { useAuth } from "@hexadian-corporation/auth-react";
 
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -12,8 +12,8 @@ export default function UsersPage() {
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const permissions = usePermissions();
-  const canAdmin = hasPermission(permissions, "auth:users:admin");
+  const { hasPermission } = useAuth();
+  const canAdmin = hasPermission("auth:users:admin");
 
   useEffect(() => {
     let cancelled = false;
