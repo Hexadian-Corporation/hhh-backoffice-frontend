@@ -17,4 +17,7 @@ export interface Graph {
   hash: string;
   nodes: Node[];
   edges: Edge[];
+  stale?: boolean;
+  stale_reason?: string | null;
+  stale_since?: string | null;
 }

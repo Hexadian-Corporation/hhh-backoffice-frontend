@@ -20,6 +20,7 @@ import GraphDetailPage from './pages/GraphDetailPage.tsx'
 import FlightPlanListPage from './pages/FlightPlanListPage.tsx'
 import FlightPlanDetailPage from './pages/FlightPlanDetailPage.tsx'
 import RouteDetailPage from './pages/RouteDetailPage.tsx'
+import RouteListPage from './pages/RouteListPage.tsx'
 import PenaltyConfigPage from './pages/PenaltyConfigPage.tsx'
 import UsersPage from './pages/UsersPage.tsx'
 import AlgorithmConfigPage from './pages/AlgorithmConfigPage.tsx'
@@ -81,6 +82,7 @@ const router = createBrowserRouter([
       { path: 'graphs/:id', element: <PermissionGuard required={['hhh:graphs:read']} fallback={<InsufficientPermissionsPage />}><GraphDetailPage /></PermissionGuard> },
       { path: 'flight-plans', element: <PermissionGuard required={['hhh:routes:read']} fallback={<InsufficientPermissionsPage />}><FlightPlanListPage /></PermissionGuard> },
       { path: 'flight-plans/:id', element: <PermissionGuard required={['hhh:routes:read']} fallback={<InsufficientPermissionsPage />}><FlightPlanDetailPage /></PermissionGuard> },
+      { path: 'routes', element: <PermissionGuard required={['hhh:routes:read']} fallback={<InsufficientPermissionsPage />}><RouteListPage /></PermissionGuard> },
       { path: 'routes/:id', element: <PermissionGuard required={['hhh:routes:read']} fallback={<InsufficientPermissionsPage />}><RouteDetailPage /></PermissionGuard> },
       { path: 'penalties', element: <PermissionGuard required={['hhh:routes:write']} fallback={<InsufficientPermissionsPage />}><PenaltyConfigPage /></PermissionGuard> },
       { path: 'sync', element: <PermissionGuard required={['hhh:data:sync']} fallback={<InsufficientPermissionsPage />}><SyncPage /></PermissionGuard> },

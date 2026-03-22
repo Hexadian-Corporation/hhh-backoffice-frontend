@@ -22,6 +22,9 @@ export interface Route {
   total_distance: number;
   total_time_seconds: number;
   contracts_fulfilled: number;
+  stale?: boolean;
+  stale_reason?: string | null;
+  stale_since?: string | null;
 }
 
 export interface RouteCreate {

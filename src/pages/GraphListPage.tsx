@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import type { Graph } from "@/types/graph";
 import { listGraphs } from "@/api/graphs";
+import StaleBadge from "@/components/ui/StaleBadge";
 
 export default function GraphListPage() {
   const navigate = useNavigate();
   const [graphs, setGraphs] = useState<Graph[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [staleOnly, setStaleOnly] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -44,6 +46,8 @@ export default function GraphListPage() {
     );
   }
 
+  const displayed = staleOnly ? graphs.filter((g) => g.stale) : graphs;
+
   return (
     <div className="p-6">
       {/* Error banner */}
@@ -56,6 +60,16 @@ export default function GraphListPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Grafos</h1>
+        <label className="flex items-center gap-2 text-sm text-[var(--color-text-muted)] cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={staleOnly}
+            onChange={(e) => setStaleOnly(e.target.checked)}
+            className="accent-[var(--color-warning)]"
+            aria-label="Show stale only"
+          />
+          Show stale only
+        </label>
       </div>
 
       {/* Table */}
@@ -67,17 +81,18 @@ export default function GraphListPage() {
               <th className="px-4 py-3 text-left font-semibold uppercase text-[var(--color-text-muted)]">Nodes</th>
               <th className="px-4 py-3 text-left font-semibold uppercase text-[var(--color-text-muted)]">Edges</th>
               <th className="px-4 py-3 text-left font-semibold uppercase text-[var(--color-text-muted)]">Hash</th>
+              <th className="px-4 py-3 text-left font-semibold uppercase text-[var(--color-text-muted)]">Status</th>
             </tr>
           </thead>
           <tbody>
-            {graphs.length === 0 ? (
+            {displayed.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-[var(--color-text-muted)]">
+                <td colSpan={5} className="px-4 py-8 text-center text-[var(--color-text-muted)]">
                   No graphs found.
                 </td>
               </tr>
             ) : (
-              graphs.map((graph) => (
+              displayed.map((graph) => (
                 <tr
                   key={graph.id}
                   className="border-b border-[var(--color-border)] hover:bg-[var(--color-surface-alt)] cursor-pointer"
@@ -87,6 +102,11 @@ export default function GraphListPage() {
                   <td className="px-4 py-3">{graph.nodes.length}</td>
                   <td className="px-4 py-3">{graph.edges.length}</td>
                   <td className="px-4 py-3 font-mono text-[var(--color-text-muted)]">{graph.hash.slice(0, 8)}</td>
+                  <td className="px-4 py-3">
+                    {graph.stale && (
+                      <StaleBadge reason={graph.stale_reason} since={graph.stale_since} />
+                    )}
+                  </td>
                 </tr>
               ))
             )}
@@ -96,3 +116,4 @@ export default function GraphListPage() {
     </div>
   );
 }
+
