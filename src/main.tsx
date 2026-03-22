@@ -17,6 +17,10 @@ import ShipListPage from './pages/ShipListPage.tsx'
 import ShipEditPage from './pages/ShipEditPage.tsx'
 import GraphListPage from './pages/GraphListPage.tsx'
 import GraphDetailPage from './pages/GraphDetailPage.tsx'
+import FlightPlanListPage from './pages/FlightPlanListPage.tsx'
+import FlightPlanDetailPage from './pages/FlightPlanDetailPage.tsx'
+import RouteDetailPage from './pages/RouteDetailPage.tsx'
+import PenaltyConfigPage from './pages/PenaltyConfigPage.tsx'
 import UsersPage from './pages/UsersPage.tsx'
 import AlgorithmConfigPage from './pages/AlgorithmConfigPage.tsx'
 import CallbackPage from './pages/CallbackPage.tsx'
@@ -73,6 +77,10 @@ const router = createBrowserRouter([
       { path: 'ships/:id', element: <PermissionGuard required={['hhh:ships:write']} fallback={<InsufficientPermissionsPage />}><ShipEditPage /></PermissionGuard> },
       { path: 'graphs', element: <PermissionGuard required={['hhh:graphs:read']} fallback={<InsufficientPermissionsPage />}><GraphListPage /></PermissionGuard> },
       { path: 'graphs/:id', element: <PermissionGuard required={['hhh:graphs:read']} fallback={<InsufficientPermissionsPage />}><GraphDetailPage /></PermissionGuard> },
+      { path: 'flight-plans', element: <PermissionGuard required={['hhh:routes:read']} fallback={<InsufficientPermissionsPage />}><FlightPlanListPage /></PermissionGuard> },
+      { path: 'flight-plans/:id', element: <PermissionGuard required={['hhh:routes:read']} fallback={<InsufficientPermissionsPage />}><FlightPlanDetailPage /></PermissionGuard> },
+      { path: 'routes/:id', element: <PermissionGuard required={['hhh:routes:read']} fallback={<InsufficientPermissionsPage />}><RouteDetailPage /></PermissionGuard> },
+      { path: 'penalties', element: <PermissionGuard required={['hhh:routes:write']} fallback={<InsufficientPermissionsPage />}><PenaltyConfigPage /></PermissionGuard> },
       { path: 'users', element: <PermissionGuard required={['auth:users:read']} fallback={<InsufficientPermissionsPage />}><UsersPage /></PermissionGuard> },
       { path: 'algorithms', element: <PermissionGuard required={['auth:rbac:manage']} fallback={<InsufficientPermissionsPage />}><AlgorithmConfigPage /></PermissionGuard> },
     ],
