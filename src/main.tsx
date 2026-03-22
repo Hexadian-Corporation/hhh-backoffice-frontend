@@ -37,6 +37,7 @@ const BACKOFFICE_PERMISSIONS = [
 
 const authConfig: AuthConfig = {
   authServiceUrl: import.meta.env.VITE_AUTH_API_URL ?? 'http://localhost:8006',
+  authPortalUrl: import.meta.env.VITE_AUTH_PORTAL_URL ?? 'http://localhost:3003',
   clientId: import.meta.env.VITE_AUTH_CLIENT_ID ?? 'hhh-backoffice',
   redirectUri: `${window.location.origin}/callback`,
 }

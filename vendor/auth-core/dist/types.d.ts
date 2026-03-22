@@ -19,6 +19,8 @@ export interface TokenResponse {
 }
 export interface AuthConfig {
     authServiceUrl: string;
+    /** Base URL of the auth portal frontend. Used for login redirects. Defaults to authServiceUrl. */
+    authPortalUrl?: string;
     clientId: string;
     redirectUri: string;
     storagePrefix?: string;

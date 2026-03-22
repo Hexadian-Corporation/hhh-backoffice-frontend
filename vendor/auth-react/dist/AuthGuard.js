@@ -11,7 +11,7 @@ export function AuthGuard({ children, fallback = null }) {
         hasChecked.current = true;
         tryRefresh().then((refreshed) => {
             if (!refreshed) {
-                login(window.location.href);
+                login(window.location.pathname + window.location.search + window.location.hash);
             }
             setIsChecking(false);
         });
