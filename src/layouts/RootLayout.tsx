@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from "react-router"
-import { LayoutDashboard, FileText, MapPin, Package, Rocket, Users, LogOut, User } from "lucide-react"
+import { LayoutDashboard, FileText, MapPin, Package, Rocket, Network, Users, LogOut, User } from "lucide-react"
 import { useAuth } from "@hexadian-corporation/auth-react"
 
 const navItems = [
@@ -8,6 +8,7 @@ const navItems = [
   { to: "/locations", label: "Ubicaciones", icon: MapPin, permissions: ["hhh:locations:write"] },
   { to: "/commodities", label: "Mercancías", icon: Package, permissions: ["hhh:commodities:write"] },
   { to: "/ships", label: "Naves", icon: Rocket, permissions: ["hhh:ships:write"] },
+  { to: "/graphs", label: "Grafos", icon: Network, permissions: ["hhh:graphs:read"] },
   { to: "/users", label: "Users", icon: Users, permissions: ["auth:users:read"] },
 ]
 

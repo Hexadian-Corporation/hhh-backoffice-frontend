@@ -64,6 +64,7 @@ describe("RootLayout permission filtering", () => {
       "hhh:locations:write",
       "hhh:commodities:write",
       "hhh:ships:write",
+      "hhh:graphs:read",
       "auth:users:read",
     ];
     mockHasPermission.mockImplementation((p) => perms.includes(p));
@@ -80,6 +81,7 @@ describe("RootLayout permission filtering", () => {
     expect(screen.getByText("Ubicaciones")).toBeInTheDocument();
     expect(screen.getByText("Mercancías")).toBeInTheDocument();
     expect(screen.getByText("Naves")).toBeInTheDocument();
+    expect(screen.getByText("Grafos")).toBeInTheDocument();
     expect(screen.getByText("Users")).toBeInTheDocument();
   });
 });
