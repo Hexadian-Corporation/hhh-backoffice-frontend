@@ -15,6 +15,8 @@ import CommodityListPage from './pages/CommodityListPage.tsx'
 import CommodityEditPage from './pages/CommodityEditPage.tsx'
 import ShipListPage from './pages/ShipListPage.tsx'
 import ShipEditPage from './pages/ShipEditPage.tsx'
+import GraphListPage from './pages/GraphListPage.tsx'
+import GraphDetailPage from './pages/GraphDetailPage.tsx'
 import UsersPage from './pages/UsersPage.tsx'
 import CallbackPage from './pages/CallbackPage.tsx'
 import ForbiddenPage from './pages/ForbiddenPage.tsx'
@@ -68,6 +70,8 @@ const router = createBrowserRouter([
       { path: 'ships', element: <PermissionGuard required={['hhh:ships:read']} fallback={<InsufficientPermissionsPage />}><ShipListPage /></PermissionGuard> },
       { path: 'ships/new', element: <PermissionGuard required={['hhh:ships:write']} fallback={<InsufficientPermissionsPage />}><ShipEditPage /></PermissionGuard> },
       { path: 'ships/:id', element: <PermissionGuard required={['hhh:ships:write']} fallback={<InsufficientPermissionsPage />}><ShipEditPage /></PermissionGuard> },
+      { path: 'graphs', element: <PermissionGuard required={['hhh:graphs:read']} fallback={<InsufficientPermissionsPage />}><GraphListPage /></PermissionGuard> },
+      { path: 'graphs/:id', element: <PermissionGuard required={['hhh:graphs:read']} fallback={<InsufficientPermissionsPage />}><GraphDetailPage /></PermissionGuard> },
       { path: 'users', element: <PermissionGuard required={['auth:users:read']} fallback={<InsufficientPermissionsPage />}><UsersPage /></PermissionGuard> },
     ],
   },
