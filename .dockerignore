@@ -1,0 +1,11 @@
+node_modules
+dist
+!vendor/*/dist
+dist-ssr
+coverage
+.git
+.github
+.vscode
+.idea
+.claude
+*.log
