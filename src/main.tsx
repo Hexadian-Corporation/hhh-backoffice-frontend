@@ -23,6 +23,7 @@ import RouteDetailPage from './pages/RouteDetailPage.tsx'
 import PenaltyConfigPage from './pages/PenaltyConfigPage.tsx'
 import UsersPage from './pages/UsersPage.tsx'
 import AlgorithmConfigPage from './pages/AlgorithmConfigPage.tsx'
+import SyncPage from './pages/SyncPage.tsx'
 import CallbackPage from './pages/CallbackPage.tsx'
 import ForbiddenPage from './pages/ForbiddenPage.tsx'
 import InsufficientPermissionsPage from './pages/InsufficientPermissionsPage.tsx'
@@ -82,6 +83,7 @@ const router = createBrowserRouter([
       { path: 'flight-plans/:id', element: <PermissionGuard required={['hhh:routes:read']} fallback={<InsufficientPermissionsPage />}><FlightPlanDetailPage /></PermissionGuard> },
       { path: 'routes/:id', element: <PermissionGuard required={['hhh:routes:read']} fallback={<InsufficientPermissionsPage />}><RouteDetailPage /></PermissionGuard> },
       { path: 'penalties', element: <PermissionGuard required={['hhh:routes:write']} fallback={<InsufficientPermissionsPage />}><PenaltyConfigPage /></PermissionGuard> },
+      { path: 'sync', element: <PermissionGuard required={['hhh:data:sync']} fallback={<InsufficientPermissionsPage />}><SyncPage /></PermissionGuard> },
       { path: 'users', element: <PermissionGuard required={['auth:users:read']} fallback={<InsufficientPermissionsPage />}><UsersPage /></PermissionGuard> },
       { path: 'algorithms', element: <PermissionGuard required={['auth:rbac:manage']} fallback={<InsufficientPermissionsPage />}><AlgorithmConfigPage /></PermissionGuard> },
     ],

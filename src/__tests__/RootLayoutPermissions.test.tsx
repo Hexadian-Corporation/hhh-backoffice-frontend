@@ -42,6 +42,7 @@ describe("RootLayout permission filtering", () => {
     expect(screen.getByText("Ubicaciones")).toBeInTheDocument();
     expect(screen.queryByText("Contratos")).not.toBeInTheDocument();
     expect(screen.queryByText("Mercancías")).not.toBeInTheDocument();
+    expect(screen.queryByText("Data Sync")).not.toBeInTheDocument();
     expect(screen.queryByText("Users")).not.toBeInTheDocument();
   });
 
@@ -67,6 +68,7 @@ describe("RootLayout permission filtering", () => {
       "hhh:graphs:read",
       "hhh:routes:read",
       "hhh:routes:write",
+      "hhh:data:sync",
       "auth:users:read",
     ];
     mockHasPermission.mockImplementation((p) => perms.includes(p));
@@ -86,6 +88,7 @@ describe("RootLayout permission filtering", () => {
     expect(screen.getByText("Grafos")).toBeInTheDocument();
     expect(screen.getByText("Planes de Vuelo")).toBeInTheDocument();
     expect(screen.getByText("Penalizaciones")).toBeInTheDocument();
+    expect(screen.getByText("Data Sync")).toBeInTheDocument();
     expect(screen.getByText("Users")).toBeInTheDocument();
   });
 });
