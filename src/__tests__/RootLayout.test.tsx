@@ -34,6 +34,7 @@ describe("RootLayout", () => {
     expect(screen.getByText("Ubicaciones")).toBeInTheDocument()
     expect(screen.getByText("Naves")).toBeInTheDocument()
     expect(screen.getByText("Grafos")).toBeInTheDocument()
+    expect(screen.getByText("Penalizaciones")).toBeInTheDocument()
     expect(screen.getByText("Users")).toBeInTheDocument()
   })
 
@@ -115,5 +116,16 @@ describe("RootLayout", () => {
 
     const link = screen.getByRole("link", { name: /users/i })
     expect(link).toHaveAttribute("href", "/users")
+  })
+
+  it("renders Penalizaciones as a link to /penalties", () => {
+    render(
+      <MemoryRouter initialEntries={["/"]}>
+        <RootLayout />
+      </MemoryRouter>,
+    )
+
+    const link = screen.getByRole("link", { name: /penalizaciones/i })
+    expect(link).toHaveAttribute("href", "/penalties")
   })
 })
