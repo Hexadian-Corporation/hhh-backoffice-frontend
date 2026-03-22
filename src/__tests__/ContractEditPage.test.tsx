@@ -2,10 +2,28 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router";
 import { vi, type Mock } from "vitest";
-import ContractEditPage from "@/pages/ContractEditPage";
 import type { Contract } from "@/types/contract";
 import type { Location } from "@/types/location";
 import type { Commodity } from "@/types/commodity";
+
+const mockHasPermission = vi.fn<(p: string) => boolean>(() => true);
+
+vi.mock("@hexadian-corporation/auth-react", () => ({
+  useAuth: () => ({
+    user: { username: "admin", permissions: [] },
+    isAuthenticated: true,
+    isLoading: false,
+    login: vi.fn(),
+    logout: vi.fn(),
+    tryRefresh: vi.fn(),
+    authFetch: vi.fn(),
+    hasPermission: (...args: unknown[]) => mockHasPermission(...(args as [string])),
+    hasAnyPermission: () => true,
+    handleCallback: vi.fn(),
+  }),
+}));
+
+import ContractEditPage from "@/pages/ContractEditPage";
 
 const mockCommodity: Commodity = {
   id: "comm-1",
@@ -21,6 +39,7 @@ const mockCommodity2: Commodity = {
 
 const mockContract: Contract = {
   id: "42",
+  source: "game",
   title: "Test Haul",
   description: "Move cargo from A to B",
   faction: "haul",
@@ -126,9 +145,57 @@ beforeEach(() => {
   );
 });
 
+beforeEach(() => {
+  mockHasPermission.mockReturnValue(true);
+});
+
 afterEach(() => {
   vi.restoreAllMocks();
 });
+
+type CloneResponse =
+  | { ok: true; contract: Contract }
+  | { ok: false; status: number; statusText: string };
+
+function mockFetchWithClone(cloneResponse: CloneResponse) {
+  (fetch as Mock).mockImplementation((url: string, init?: RequestInit) => {
+    if (init?.method === "POST" && url.includes("/clone")) {
+      if (!cloneResponse.ok) {
+        return Promise.resolve({
+          ok: false,
+          status: cloneResponse.status,
+          statusText: cloneResponse.statusText,
+        });
+      }
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve(cloneResponse.contract),
+      });
+    }
+    if (url.includes("/commodities/comm-1")) {
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ id: "comm-1", name: "Laranite", code: "LARA" }),
+      });
+    }
+    if (url.includes("/locations/loc-1")) {
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ id: "loc-1", name: "Port Olisar", location_type: "station" }),
+      });
+    }
+    if (url.includes("/locations/loc-2")) {
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ id: "loc-2", name: "Area18", location_type: "city" }),
+      });
+    }
+    return Promise.resolve({
+      ok: true,
+      json: () => Promise.resolve(mockContract),
+    });
+  });
+}
 
 describe("ContractEditPage", () => {
   // -- Loading & Fetch --
@@ -669,6 +736,88 @@ describe("ContractEditPage", () => {
     ).toBeInTheDocument();
 
     // Should still be on the edit page
+    expect(screen.getByText("Edit Contract")).toBeInTheDocument();
+
+    vi.useRealTimers();
+  });
+
+  // -- Clone --
+  it("shows Clone button for game contract with hhh:contracts:clone permission", async () => {
+    renderPage();
+    await screen.findByText("Edit Contract");
+
+    expect(screen.getByText("Clone")).toBeInTheDocument();
+  });
+
+  it("shows Clone button for admin contract with hhh:contracts:clone permission", async () => {
+    (fetch as Mock).mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ ...mockContract, source: "admin" }),
+    });
+
+    renderPage();
+    await screen.findByText("Edit Contract");
+
+    expect(screen.getByText("Clone")).toBeInTheDocument();
+  });
+
+  it("hides Clone button for user contract", async () => {
+    (fetch as Mock).mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ ...mockContract, source: "user" }),
+    });
+
+    renderPage();
+    await screen.findByText("Edit Contract");
+
+    expect(screen.queryByText("Clone")).not.toBeInTheDocument();
+  });
+
+  it("hides Clone button when user lacks hhh:contracts:clone permission", async () => {
+    mockHasPermission.mockImplementation((p: string) => p !== "hhh:contracts:clone");
+
+    renderPage();
+    await screen.findByText("Edit Contract");
+
+    expect(screen.queryByText("Clone")).not.toBeInTheDocument();
+  });
+
+  it("calls clone API and navigates to new contract on Clone click", async () => {
+    const clonedContract = { ...mockContract, id: "99" };
+    mockFetchWithClone({ ok: true, contract: clonedContract });
+
+    renderPage();
+    await screen.findByText("Edit Contract");
+
+    await userEvent.click(screen.getByText("Clone"));
+
+    // Verify clone API was called
+    expect(fetch).toHaveBeenCalledWith(
+      "http://localhost:8001/contracts/42/clone",
+      expect.objectContaining({ method: "POST" }),
+    );
+
+    // Verify navigation happened: GET for cloned contract id is fetched
+    await screen.findByText("Edit Contract");
+    expect(fetch).toHaveBeenCalledWith(
+      "http://localhost:8001/contracts/99",
+      expect.anything(),
+    );
+  });
+
+  it("shows error toast when clone fails", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    mockFetchWithClone({ ok: false, status: 500, statusText: "Internal Server Error" });
+
+    renderPage();
+    await screen.findByText("Edit Contract");
+
+    await userEvent.click(screen.getByText("Clone"));
+
+    expect(
+      await screen.findByText("Failed to clone contract"),
+    ).toBeInTheDocument();
+
     expect(screen.getByText("Edit Contract")).toBeInTheDocument();
 
     vi.useRealTimers();
