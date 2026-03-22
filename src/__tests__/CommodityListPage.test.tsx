@@ -25,11 +25,17 @@ const mockCommodities: Commodity[] = [
     id: "comm-1",
     name: "Laranite",
     code: "LARA",
+    category: "Metal",
+    price_buy: 125.50,
+    price_sell: 110.25,
   },
   {
     id: "comm-2",
     name: "Titanium",
     code: "TITAN",
+    category: "Metal",
+    price_buy: 80.00,
+    price_sell: 75.00,
   },
 ];
 
@@ -113,7 +119,76 @@ describe("CommodityListPage", () => {
 
     expect(screen.getByText("Name")).toBeInTheDocument();
     expect(screen.getByText("Code")).toBeInTheDocument();
+    expect(screen.getByText("Category")).toBeInTheDocument();
+    expect(screen.getByText("Buy Price")).toBeInTheDocument();
+    expect(screen.getByText("Sell Price")).toBeInTheDocument();
     expect(screen.getByText("Actions")).toBeInTheDocument();
+  });
+
+  it("renders category and price columns for each commodity", async () => {
+    renderPage();
+    await screen.findByText("Mercancías");
+
+    expect(screen.getAllByText("Metal")).toHaveLength(2);
+    expect(screen.getByText("125.50 UEC")).toBeInTheDocument();
+    expect(screen.getByText("110.25 UEC")).toBeInTheDocument();
+    expect(screen.getByText("80.00 UEC")).toBeInTheDocument();
+    expect(screen.getByText("75.00 UEC")).toBeInTheDocument();
+  });
+
+  it("shows 0.00 UEC for zero prices", async () => {
+    (fetch as Mock).mockResolvedValueOnce({
+      ok: true,
+      json: () =>
+        Promise.resolve([
+          { id: "comm-3", name: "Hydrogen", code: "HYDR", price_buy: 0, price_sell: 0 },
+        ]),
+    });
+
+    renderPage();
+    await screen.findByText("Mercancías");
+
+    expect(screen.getAllByText("0.00 UEC")).toHaveLength(2);
+  });
+
+  it("shows dash for missing category", async () => {
+    (fetch as Mock).mockResolvedValueOnce({
+      ok: true,
+      json: () =>
+        Promise.resolve([
+          { id: "comm-4", name: "Hydrogen", code: "HYDR" },
+        ]),
+    });
+
+    renderPage();
+    await screen.findByText("Mercancías");
+
+    expect(screen.getByText("—")).toBeInTheDocument();
+  });
+
+  // -- Sorting --
+  it("sorts by name descending on second click", async () => {
+    renderPage();
+    await screen.findByText("Mercancías");
+
+    const nameHeader = screen.getByText("Name");
+    // Default is name asc; one click flips to desc
+    await userEvent.click(nameHeader);
+
+    const rows = screen.getAllByRole("row").slice(1); // skip header
+    expect(rows[0]).toHaveTextContent("Titanium");
+    expect(rows[1]).toHaveTextContent("Laranite");
+  });
+
+  it("sorts by buy price ascending", async () => {
+    renderPage();
+    await screen.findByText("Mercancías");
+
+    await userEvent.click(screen.getByText("Buy Price"));
+
+    const rows = screen.getAllByRole("row").slice(1);
+    expect(rows[0]).toHaveTextContent("Titanium");
+    expect(rows[1]).toHaveTextContent("Laranite");
   });
 
   // -- Navigation --

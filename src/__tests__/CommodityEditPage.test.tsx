@@ -9,6 +9,9 @@ const mockCommodity: Commodity = {
   id: "comm-1",
   name: "Laranite",
   code: "LARA",
+  category: "Metal",
+  price_buy: 125.50,
+  price_sell: 110.25,
 };
 
 function renderEditPage(id = "comm-1") {
@@ -78,6 +81,9 @@ describe("CommodityEditPage - Edit mode", () => {
 
     expect(screen.getByLabelText("Name")).toHaveValue("Laranite");
     expect(screen.getByLabelText("Code")).toHaveValue("LARA");
+    expect(screen.getByLabelText("Category")).toHaveValue("Metal");
+    expect(screen.getByLabelText("Buy Price (UEC/SCU)")).toHaveValue(125.50);
+    expect(screen.getByLabelText("Sell Price (UEC/SCU)")).toHaveValue(110.25);
   });
 
   it("can edit the name field", async () => {
@@ -193,6 +199,9 @@ describe("CommodityEditPage - Create mode", () => {
 
     expect(screen.getByLabelText("Name")).toHaveValue("");
     expect(screen.getByLabelText("Code")).toHaveValue("");
+    expect(screen.getByLabelText("Category")).toHaveValue("");
+    expect(screen.getByLabelText("Buy Price (UEC/SCU)")).toHaveValue(0);
+    expect(screen.getByLabelText("Sell Price (UEC/SCU)")).toHaveValue(0);
   });
 
   it("creates commodity and shows success toast", async () => {

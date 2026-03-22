@@ -12,6 +12,9 @@ import { Button } from "@/components/ui/button";
 const INITIAL_FORM: CommodityCreate = {
   name: "",
   code: "",
+  category: "",
+  price_buy: 0,
+  price_sell: 0,
 };
 
 function validate(form: CommodityCreate): Record<string, string> {
@@ -44,6 +47,9 @@ export default function CommodityEditPage() {
         setForm({
           name: commodity.name,
           code: commodity.code,
+          category: commodity.category ?? "",
+          price_buy: commodity.price_buy ?? 0,
+          price_sell: commodity.price_sell ?? 0,
         });
       })
       .catch(() => {
@@ -192,6 +198,56 @@ export default function CommodityEditPage() {
               {errors.code}
             </p>
           )}
+        </div>
+
+        {/* Category */}
+        <div>
+          <label htmlFor="category" className="block text-sm font-medium mb-1">
+            Category
+          </label>
+          <input
+            id="category"
+            type="text"
+            value={form.category ?? ""}
+            onChange={(e) => handleFieldChange("category", e.target.value)}
+            className="w-full rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)] focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)]"
+          />
+        </div>
+
+        {/* Price Buy */}
+        <div>
+          <label htmlFor="price_buy" className="block text-sm font-medium mb-1">
+            Buy Price (UEC/SCU)
+          </label>
+          <input
+            id="price_buy"
+            type="number"
+            min={0}
+            step={0.01}
+            value={form.price_buy ?? 0}
+            onChange={(e) =>
+              handleFieldChange("price_buy", parseFloat(e.target.value) || 0)
+            }
+            className="w-full rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)] focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)]"
+          />
+        </div>
+
+        {/* Price Sell */}
+        <div>
+          <label htmlFor="price_sell" className="block text-sm font-medium mb-1">
+            Sell Price (UEC/SCU)
+          </label>
+          <input
+            id="price_sell"
+            type="number"
+            min={0}
+            step={0.01}
+            value={form.price_sell ?? 0}
+            onChange={(e) =>
+              handleFieldChange("price_sell", parseFloat(e.target.value) || 0)
+            }
+            className="w-full rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)] focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)]"
+          />
         </div>
       </div>
     </div>

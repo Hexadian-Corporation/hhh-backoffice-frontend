@@ -1,10 +1,24 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react";
 import type { Commodity } from "@/types/commodity";
 import { listCommodities, deleteCommodity } from "@/api/commodities";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@hexadian-corporation/auth-react";
+
+type SortKey = "name" | "code" | "category" | "price_buy" | "price_sell";
+type SortDir = "asc" | "desc";
+
+function SortIcon({ column, sortKey, sortDir }: { column: SortKey; sortKey: SortKey; sortDir: SortDir }) {
+  if (column !== sortKey) return <ChevronsUpDown className="inline h-3 w-3 ml-1 opacity-40" />;
+  return sortDir === "asc"
+    ? <ChevronUp className="inline h-3 w-3 ml-1" />
+    : <ChevronDown className="inline h-3 w-3 ml-1" />;
+}
+
+function formatPrice(value?: number): string {
+  return `${(value ?? 0).toFixed(2)} UEC`;
+}
 
 export default function CommodityListPage() {
   const navigate = useNavigate();
@@ -15,6 +29,8 @@ export default function CommodityListPage() {
   const [error, setError] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Commodity | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [sortKey, setSortKey] = useState<SortKey>("name");
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
 
   useEffect(() => {
     let cancelled = false;
@@ -34,6 +50,30 @@ export default function CommodityListPage() {
       cancelled = true;
     };
   }, []);
+
+  function handleSort(key: SortKey) {
+    if (sortKey === key) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortDir("asc");
+    }
+  }
+
+  const sorted = [...commodities].sort((a, b) => {
+    let aVal: string | number;
+    let bVal: string | number;
+    if (sortKey === "price_buy" || sortKey === "price_sell") {
+      aVal = a[sortKey] ?? 0;
+      bVal = b[sortKey] ?? 0;
+    } else {
+      aVal = (a[sortKey] ?? "").toString().toLowerCase();
+      bVal = (b[sortKey] ?? "").toString().toLowerCase();
+    }
+    if (aVal < bVal) return sortDir === "asc" ? -1 : 1;
+    if (aVal > bVal) return sortDir === "asc" ? 1 : -1;
+    return 0;
+  });
 
   async function handleDelete() {
     if (!deleteTarget) return;
@@ -90,20 +130,53 @@ export default function CommodityListPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-[var(--color-border)] bg-[var(--color-surface)]">
-              <th className="px-4 py-3 text-left font-semibold uppercase text-[var(--color-text-muted)]">Name</th>
-              <th className="px-4 py-3 text-left font-semibold uppercase text-[var(--color-text-muted)]">Code</th>
+              <th
+                className="px-4 py-3 text-left font-semibold uppercase text-[var(--color-text-muted)] cursor-pointer select-none"
+                onClick={() => handleSort("name")}
+              >
+                Name
+                <SortIcon column="name" sortKey={sortKey} sortDir={sortDir} />
+              </th>
+              <th
+                className="px-4 py-3 text-left font-semibold uppercase text-[var(--color-text-muted)] cursor-pointer select-none"
+                onClick={() => handleSort("code")}
+              >
+                Code
+                <SortIcon column="code" sortKey={sortKey} sortDir={sortDir} />
+              </th>
+              <th
+                className="px-4 py-3 text-left font-semibold uppercase text-[var(--color-text-muted)] cursor-pointer select-none"
+                onClick={() => handleSort("category")}
+              >
+                Category
+                <SortIcon column="category" sortKey={sortKey} sortDir={sortDir} />
+              </th>
+              <th
+                className="px-4 py-3 text-right font-semibold uppercase text-[var(--color-text-muted)] cursor-pointer select-none"
+                onClick={() => handleSort("price_buy")}
+              >
+                Buy Price
+                <SortIcon column="price_buy" sortKey={sortKey} sortDir={sortDir} />
+              </th>
+              <th
+                className="px-4 py-3 text-right font-semibold uppercase text-[var(--color-text-muted)] cursor-pointer select-none"
+                onClick={() => handleSort("price_sell")}
+              >
+                Sell Price
+                <SortIcon column="price_sell" sortKey={sortKey} sortDir={sortDir} />
+              </th>
               <th className="px-4 py-3 text-right font-semibold uppercase text-[var(--color-text-muted)]">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {commodities.length === 0 ? (
+            {sorted.length === 0 ? (
               <tr>
-                <td colSpan={3} className="px-4 py-8 text-center text-[var(--color-text-muted)]">
+                <td colSpan={6} className="px-4 py-8 text-center text-[var(--color-text-muted)]">
                   No commodities found.
                 </td>
               </tr>
             ) : (
-              commodities.map((commodity) => (
+              sorted.map((commodity) => (
                 <tr
                   key={commodity.id}
                   className="border-b border-[var(--color-border)] hover:bg-[var(--color-surface-alt)] cursor-pointer"
@@ -111,6 +184,9 @@ export default function CommodityListPage() {
                 >
                   <td className="px-4 py-3">{commodity.name}</td>
                   <td className="px-4 py-3">{commodity.code}</td>
+                  <td className="px-4 py-3">{commodity.category ?? "—"}</td>
+                  <td className="px-4 py-3 text-right">{formatPrice(commodity.price_buy)}</td>
+                  <td className="px-4 py-3 text-right">{formatPrice(commodity.price_sell)}</td>
                   <td className="px-4 py-3 text-right">
                     {canWrite && (
                     <Button
