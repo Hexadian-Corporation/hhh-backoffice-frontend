@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from "react-router"
-import { LayoutDashboard, FileText, MapPin, Package, Rocket, Network, Plane, Timer, RefreshCw, Users, LogOut, User, Settings } from "lucide-react"
+import { LayoutDashboard, FileText, MapPin, Package, Rocket, Network, Plane, Route, Timer, RefreshCw, Users, LogOut, User, Settings } from "lucide-react"
 import { useAuth } from "@hexadian-corporation/auth-react"
 
 const navItems = [
@@ -9,6 +9,7 @@ const navItems = [
   { to: "/commodities", label: "Mercancías", icon: Package, permissions: ["hhh:commodities:write"] },
   { to: "/ships", label: "Naves", icon: Rocket, permissions: ["hhh:ships:write"] },
   { to: "/graphs", label: "Grafos", icon: Network, permissions: ["hhh:graphs:read"] },
+  { to: "/routes", label: "Rutas", icon: Route, permissions: ["hhh:routes:read"] },
   { to: "/flight-plans", label: "Planes de Vuelo", icon: Plane, permissions: ["hhh:routes:read"] },
   { to: "/penalties", label: "Penalizaciones", icon: Timer, permissions: ["hhh:routes:write"] },
   { to: "/sync", label: "Data Sync", icon: RefreshCw, permissions: ["hhh:data:sync"] },

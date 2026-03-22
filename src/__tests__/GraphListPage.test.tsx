@@ -29,6 +29,9 @@ const mockGraphs: Graph[] = [
         travel_time_seconds: 300,
       },
     ],
+    stale: true,
+    stale_reason: "Location removed",
+    stale_since: "2025-01-15T10:00:00Z",
   },
   {
     id: "graph-2",
@@ -36,6 +39,7 @@ const mockGraphs: Graph[] = [
     hash: "ffffffff00000000",
     nodes: [{ location_id: "loc-3", label: "Nyx" }],
     edges: [],
+    stale: false,
   },
 ];
 
@@ -137,6 +141,7 @@ describe("GraphListPage", () => {
     expect(screen.getByText("Nodes")).toBeInTheDocument();
     expect(screen.getByText("Edges")).toBeInTheDocument();
     expect(screen.getByText("Hash")).toBeInTheDocument();
+    expect(screen.getByText("Status")).toBeInTheDocument();
   });
 
   it("navigates to detail page when clicking a row", async () => {
@@ -156,5 +161,59 @@ describe("GraphListPage", () => {
     expect(screen.queryByText("New Graph")).not.toBeInTheDocument();
     expect(screen.queryByText("Nueva")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /delete/i })).not.toBeInTheDocument();
+  });
+
+  it("shows stale badge on stale graphs", async () => {
+    renderPage();
+    await screen.findByText("Grafos");
+
+    const staleBadges = screen.getAllByTestId("stale-badge");
+    expect(staleBadges).toHaveLength(1);
+
+    const innerRow = screen.getByText("Inner Systems").closest("tr")!;
+    expect(innerRow).toContainElement(staleBadges[0]);
+  });
+
+  it("stale badge has tooltip with reason and since", async () => {
+    renderPage();
+    await screen.findByText("Grafos");
+
+    const badge = screen.getByTestId("stale-badge");
+    expect(badge).toHaveAttribute("title", "Reason: Location removed\nSince: 2025-01-15T10:00:00Z");
+  });
+
+  it("does not show stale badge on non-stale graphs", async () => {
+    renderPage();
+    await screen.findByText("Grafos");
+
+    const outerRow = screen.getByText("Outer Systems").closest("tr")!;
+    expect(outerRow.querySelector("[data-testid='stale-badge']")).not.toBeInTheDocument();
+  });
+
+  it("stale filter hides non-stale graphs", async () => {
+    renderPage();
+    await screen.findByText("Grafos");
+
+    expect(screen.getByText("Inner Systems")).toBeInTheDocument();
+    expect(screen.getByText("Outer Systems")).toBeInTheDocument();
+
+    await userEvent.click(screen.getByLabelText("Show stale only"));
+
+    expect(screen.getByText("Inner Systems")).toBeInTheDocument();
+    expect(screen.queryByText("Outer Systems")).not.toBeInTheDocument();
+  });
+
+  it("stale filter shows empty state when no stale graphs", async () => {
+    (fetch as Mock).mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve([{ ...mockGraphs[1] }]),
+    });
+
+    renderPage();
+    await screen.findByText("Grafos");
+
+    await userEvent.click(screen.getByLabelText("Show stale only"));
+
+    expect(await screen.findByText("No graphs found.")).toBeInTheDocument();
   });
 });
