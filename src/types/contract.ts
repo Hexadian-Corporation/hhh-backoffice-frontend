@@ -15,6 +15,7 @@ export interface Requirements {
 
 export interface Contract {
   id: string;
+  source?: 'game' | 'admin' | 'user';
   title: string;
   description: string;
   faction: string;
@@ -28,5 +29,5 @@ export interface Contract {
   updated_at: string;
 }
 
-export type ContractCreate = Omit<Contract, 'id' | 'created_at' | 'updated_at'>;
+export type ContractCreate = Omit<Contract, 'id' | 'created_at' | 'updated_at' | 'source'>;
 export type ContractUpdate = Partial<ContractCreate>;

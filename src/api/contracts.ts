@@ -35,6 +35,12 @@ export async function updateContract(id: string, data: ContractUpdate): Promise<
   });
 }
 
+export async function cloneContract(id: string): Promise<Contract> {
+  return request<Contract>(`/contracts/${id}/clone`, {
+    method: 'POST',
+  });
+}
+
 export async function deleteContract(id: string): Promise<void> {
   const res = await authenticatedFetch(`${BASE}/contracts/${id}`, {
     method: 'DELETE',

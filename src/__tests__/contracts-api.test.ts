@@ -5,6 +5,7 @@ import {
   createContract,
   updateContract,
   deleteContract,
+  cloneContract,
 } from '@/api/contracts';
 import type { Contract, ContractCreate, ContractUpdate } from '@/types/contract';
 
@@ -110,6 +111,17 @@ describe('updateContract', () => {
     expect(fetch).toHaveBeenCalledWith(`${BASE}/contracts/1`, {
       method: 'PUT',
       body: JSON.stringify(payload),
+    });
+    expect(result).toEqual(mockContract);
+  });
+});
+
+describe('cloneContract', () => {
+  it('sends POST /contracts/:id/clone and returns Contract', async () => {
+    const result = await cloneContract('1');
+
+    expect(fetch).toHaveBeenCalledWith(`${BASE}/contracts/1/clone`, {
+      method: 'POST',
     });
     expect(result).toEqual(mockContract);
   });

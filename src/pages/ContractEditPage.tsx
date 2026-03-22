@@ -1,14 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { ArrowLeft, Save, CheckCircle, Trash2, AlertCircle } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle, Trash2, AlertCircle, Copy } from "lucide-react";
 import type { ContractCreate, HaulingOrder, Requirements } from "@/types/contract";
-import { getContract, updateContract, deleteContract } from "@/api/contracts";
+import { getContract, updateContract, deleteContract, cloneContract } from "@/api/contracts";
 import { Button } from "@/components/ui/button";
 import GeneralTab from "@/components/contract/GeneralTab";
 import HaulingOrdersTab from "@/components/contract/HaulingOrdersTab";
 import RequirementsTab from "@/components/contract/RequirementsTab";
 import ConfirmationDialog from "@/components/ui/ConfirmationDialog";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@hexadian-corporation/auth-react";
 
 type TabKey = "general" | "hauling" | "requirements";
 
@@ -80,12 +81,16 @@ function validate(form: ContractCreate): Record<string, string> {
 export default function ContractEditPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { hasPermission } = useAuth();
+  const canClone = hasPermission("hhh:contracts:clone");
 
   const [form, setForm] = useState<ContractCreate>(INITIAL_FORM);
+  const [contractSource, setContractSource] = useState<string | undefined>(undefined);
   const [activeTab, setActiveTab] = useState<TabKey>("general");
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [cloning, setCloning] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -98,6 +103,7 @@ export default function ContractEditPage() {
     getContract(id)
       .then((contract) => {
         if (cancelled) return;
+        setContractSource(contract.source);
         setForm({
           title: contract.title,
           description: contract.description,
@@ -184,6 +190,19 @@ export default function ContractEditPage() {
     }
   }
 
+  async function handleClone() {
+    setCloning(true);
+    try {
+      const cloned = await cloneContract(id!);
+      navigate(`/contracts/${cloned.id}`);
+    } catch {
+      setToast({ message: "Failed to clone contract", type: "error" });
+      setTimeout(() => setToast(null), 3000);
+    } finally {
+      setCloning(false);
+    }
+  }
+
   if (loading) {
     return (
       <div className="p-6">
@@ -239,6 +258,16 @@ export default function ContractEditPage() {
             <ArrowLeft className="h-4 w-4" />
             Back
           </Button>
+          {canClone && (contractSource === "game" || contractSource === "admin") && (
+            <Button
+              variant="outline"
+              onClick={handleClone}
+              disabled={cloning}
+            >
+              <Copy className="h-4 w-4" />
+              {cloning ? "Cloning…" : "Clone"}
+            </Button>
+          )}
           <Button
             variant="outline"
             className="border-[var(--color-danger)] text-[var(--color-danger)] hover:bg-[var(--color-danger)]/10"
