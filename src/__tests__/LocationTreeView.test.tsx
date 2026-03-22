@@ -101,9 +101,9 @@ describe("LocationTreeView", () => {
     expect(screen.getByText("Crusader")).toBeInTheDocument();
   });
 
-  it("hides deeper children by default (depth >= 1 collapsed)", () => {
+  it("hides deeper children by default (nodes at depth >= 1 collapsed)", () => {
     renderTree();
-    // Port Olisar is at depth 2, its parent (Crusader at depth 1) is collapsed by default
+    // Port Olisar is at depth 2 — hidden because Crusader (depth 1) is not expanded
     expect(screen.queryByText("Port Olisar")).not.toBeInTheDocument();
   });
 
