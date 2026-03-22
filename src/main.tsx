@@ -18,6 +18,7 @@ import ShipEditPage from './pages/ShipEditPage.tsx'
 import GraphListPage from './pages/GraphListPage.tsx'
 import GraphDetailPage from './pages/GraphDetailPage.tsx'
 import UsersPage from './pages/UsersPage.tsx'
+import AlgorithmConfigPage from './pages/AlgorithmConfigPage.tsx'
 import CallbackPage from './pages/CallbackPage.tsx'
 import ForbiddenPage from './pages/ForbiddenPage.tsx'
 import InsufficientPermissionsPage from './pages/InsufficientPermissionsPage.tsx'
@@ -73,6 +74,7 @@ const router = createBrowserRouter([
       { path: 'graphs', element: <PermissionGuard required={['hhh:graphs:read']} fallback={<InsufficientPermissionsPage />}><GraphListPage /></PermissionGuard> },
       { path: 'graphs/:id', element: <PermissionGuard required={['hhh:graphs:read']} fallback={<InsufficientPermissionsPage />}><GraphDetailPage /></PermissionGuard> },
       { path: 'users', element: <PermissionGuard required={['auth:users:read']} fallback={<InsufficientPermissionsPage />}><UsersPage /></PermissionGuard> },
+      { path: 'algorithms', element: <PermissionGuard required={['auth:rbac:manage']} fallback={<InsufficientPermissionsPage />}><AlgorithmConfigPage /></PermissionGuard> },
     ],
   },
 ])
