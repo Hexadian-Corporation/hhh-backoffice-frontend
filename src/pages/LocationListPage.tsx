@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, List, Network } from "lucide-react";
 import type { Location } from "@/types/location";
 import { listLocations, deleteLocation } from "@/api/locations";
+import { buildLocationTree } from "@/lib/location-tree";
 import { Button } from "@/components/ui/button";
+import LocationTreeView from "@/components/location/LocationTreeView";
 import { useAuth } from "@hexadian-corporation/auth-react";
+
+type ViewMode = "table" | "tree";
 
 export default function LocationListPage() {
   const navigate = useNavigate();
@@ -15,6 +19,7 @@ export default function LocationListPage() {
   const [error, setError] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Location | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>("table");
 
   useEffect(() => {
     let cancelled = false;
@@ -77,15 +82,51 @@ export default function LocationListPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Ubicaciones</h1>
-        {canWrite && (
-        <Button onClick={() => navigate("/locations/new")}>
-          <Plus className="h-4 w-4" />
-          Nueva ubicación
-        </Button>
-        )}
+        <div className="flex items-center gap-2">
+          {/* View mode toggle */}
+          <div className="flex rounded-md border border-[var(--color-border)]">
+            <button
+              type="button"
+              aria-label="Table view"
+              className={`px-2.5 py-1.5 text-sm rounded-l-md transition-colors ${
+                viewMode === "table"
+                  ? "bg-[var(--color-accent)] text-[var(--color-bg)]"
+                  : "text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
+              }`}
+              onClick={() => setViewMode("table")}
+            >
+              <List className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              aria-label="Tree view"
+              className={`px-2.5 py-1.5 text-sm rounded-r-md transition-colors ${
+                viewMode === "tree"
+                  ? "bg-[var(--color-accent)] text-[var(--color-bg)]"
+                  : "text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
+              }`}
+              onClick={() => setViewMode("tree")}
+            >
+              <Network className="h-4 w-4" />
+            </button>
+          </div>
+          {canWrite && (
+          <Button onClick={() => navigate("/locations/new")}>
+            <Plus className="h-4 w-4" />
+            Nueva ubicación
+          </Button>
+          )}
+        </div>
       </div>
 
-      {/* Table */}
+      {/* Content */}
+      {viewMode === "tree" ? (
+        <LocationTreeView
+          tree={buildLocationTree(locations)}
+          canWrite={canWrite}
+          onDelete={setDeleteTarget}
+        />
+      ) : (
       <div className="overflow-x-auto rounded-md border border-[var(--color-border)]">
         <table className="w-full text-sm">
           <thead>
@@ -142,6 +183,7 @@ export default function LocationListPage() {
           </tbody>
         </table>
       </div>
+      )}
 
       {/* Delete confirmation dialog */}
       {deleteTarget && (
