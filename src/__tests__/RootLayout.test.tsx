@@ -34,6 +34,7 @@ describe("RootLayout", () => {
     expect(screen.getByText("Ubicaciones")).toBeInTheDocument()
     expect(screen.getByText("Naves")).toBeInTheDocument()
     expect(screen.getByText("Grafos")).toBeInTheDocument()
+    expect(screen.getByText("Planes de Vuelo")).toBeInTheDocument()
     expect(screen.getByText("Penalizaciones")).toBeInTheDocument()
     expect(screen.getByText("Users")).toBeInTheDocument()
   })
@@ -127,5 +128,16 @@ describe("RootLayout", () => {
 
     const link = screen.getByRole("link", { name: /penalizaciones/i })
     expect(link).toHaveAttribute("href", "/penalties")
+  })
+
+  it("renders Planes de Vuelo as a link to /flight-plans", () => {
+    render(
+      <MemoryRouter initialEntries={["/"]}>
+        <RootLayout />
+      </MemoryRouter>,
+    )
+
+    const link = screen.getByRole("link", { name: /planes de vuelo/i })
+    expect(link).toHaveAttribute("href", "/flight-plans")
   })
 })
