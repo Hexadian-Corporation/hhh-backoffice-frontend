@@ -82,7 +82,7 @@ export default function LocationEditPage() {
           name: location.name,
           location_type: location.location_type,
           parent_id: location.parent_id,
-          coordinates: location.coordinates,
+          coordinates: location.coordinates ?? { x: 0, y: 0, z: 0 },
           has_trade_terminal: location.has_trade_terminal,
           has_landing_pad: location.has_landing_pad,
           landing_pad_size: location.landing_pad_size,
